@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Admin - Puzzle Grove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #8b5cf6 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .admin-content {
+            padding: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+        }
+        .stat-label {
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        .btn {
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+        .users-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        .table {
+            margin: 0;
+        }
+        .table th {
+            background: #f8fafc;
+            border: none;
+            font-weight: 600;
+            color: #374151;
+        }
+        .table td {
+            border: none;
+            border-bottom: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1><i class="fas fa-database"></i> Puzzle Grove Database Admin</h1>
+            <p>Manage users and game data</p>
+            <div style="margin-top: 15px;">
+                <span style="background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; font-size: 0.9rem;">
+                    <i class="fas fa-user-shield"></i> Admin Session Active
+                </span>
+            </div>
+        </div>
+        
+        <div class="admin-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalGames">0</div>
+                    <div class="stat-label">Total Games Played</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalScore">0</div>
+                    <div class="stat-label">Total Score</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="activeUsers">0</div>
+                    <div class="stat-label">Active Users</div>
+                </div>
+            </div>
+            
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="loadUsers()">
+                    <i class="fas fa-refresh"></i> Refresh Data
+                </button>
+                <button class="btn btn-success" onclick="exportData()">
+                    <i class="fas fa-download"></i> Export All Data
+                </button>
+                <button class="btn btn-warning" onclick="clearAllData()">
+                    <i class="fas fa-trash"></i> Clear All Data
+                </button>
+                <button class="btn btn-info" onclick="createTestUser()">
+                    <i class="fas fa-user-plus"></i> Create Test User
+                </button>
+                <button class="btn btn-secondary" onclick="adminLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+            
+            <div class="users-table">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Registered</th>
+                            <th>Last Login</th>
+                            <th>Games Played</th>
+                            <th>Total Score</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Stats Modal -->
+    <div class="modal fade" id="userStatsModal" tabindex="-1" aria-labelledby="userStatsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userStatsModalLabel">User Statistics</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="userStatsContent">
+                    <!-- Stats content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="database.js"></script>
+    <script>
+        let allUsers = [];
+        let allStats = [];
+
+        // Check admin authentication
+        function checkAdminAuth() {
+            const adminSession = sessionStorage.getItem('puzzleGroveAdmin');
+            if (!adminSession) {
+                // Redirect to admin login
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+            
+            try {
+                const session = JSON.parse(adminSession);
+                if (!session.isAdmin || !session.username) {
+                    window.location.href = 'admin-login.html';
+                    return false;
+                }
+                
+                // Check if session is not too old (24 hours)
+                const loginTime = new Date(session.loginTime);
+                const now = new Date();
+                const hoursDiff = (now - loginTime) / (1000 * 60 * 60);
+                
+                if (hoursDiff > 24) {
+                    sessionStorage.removeItem('puzzleGroveAdmin');
+                    window.location.href = 'admin-login.html';
+                    return false;
+                }
+                
+                return true;
+            } catch (error) {
+                sessionStorage.removeItem('puzzleGroveAdmin');
+                window.location.href = 'admin-login.html';
+                return false;
+            }
+        }
+
+        // Initialize admin panel
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication first
+            if (!checkAdminAuth()) {
+                return;
+            }
+            
+            await window.dbManager.init();
+            await loadUsers();
+        });
+
+        // Load all users and display them
+        async function loadUsers() {
+            try {
+                // Get all users from the database
+                const transaction = window.dbManager.db.transaction(['users'], 'readonly');
+                const store = transaction.objectStore('users');
+                const request = store.getAll();
+
+                request.onsuccess = async () => {
+                    allUsers = request.result;
+                    allStats = [];
+
+                    // Get stats for each user
+                    for (const user of allUsers) {
+                        try {
+                            const stats = await window.dbManager.getUserStats(user.username);
+                            allStats.push(stats);
+                        } catch (error) {
+                            console.log(`No stats found for user: ${user.username}`);
+                            // Create empty stats structure
+                            allStats.push({
+                                userId: user.username,
+                                username: user.username,
+                                totalGamesPlayed: 0,
+                                totalGamesWon: 0,
+                                currentStreak: 0,
+                                maxStreak: 0,
+                                totalScore: 0,
+                                gameStats: {
+                                    wordle: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    connections: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    wordsearch: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    anagrams: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    spellingbee: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    crossword: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    hangman: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 },
+                                    synonym: { gamesPlayed: 0, gamesWon: 0, currentStreak: 0, maxStreak: 0 }
+                                }
+                            });
+                        }
+                    }
+
+                    displayUsers();
+                    updateStats();
+                };
+
+                request.onerror = () => {
+                    console.error('Error loading users');
+                };
+            } catch (error) {
+                console.error('Error loading users:', error);
+            }
+        }
+
+        // Display users in the table
+        function displayUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            allUsers.forEach((user, index) => {
+                const stats = allStats[index];
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${user.username}</td>
+                    <td>${user.email}</td>
+                    <td>${new Date(user.registeredAt).toLocaleDateString()}</td>
+                    <td>${user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}</td>
+                    <td>${stats ? stats.totalGamesPlayed : 0}</td>
+                    <td>${stats ? stats.totalScore : 0}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="viewUserStats('${user.username}')">
+                            <i class="fas fa-chart-bar"></i> Stats
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning" onclick="resetUserStats('${user.username}')">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(${user.id})">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Update statistics
+        function updateStats() {
+            document.getElementById('totalUsers').textContent = allUsers.length;
+            
+            const totalGames = allStats.reduce((sum, stats) => sum + (stats ? stats.totalGamesPlayed : 0), 0);
+            document.getElementById('totalGames').textContent = totalGames;
+            
+            const totalScore = allStats.reduce((sum, stats) => sum + (stats ? stats.totalScore : 0), 0);
+            document.getElementById('totalScore').textContent = totalScore;
+            
+            const activeUsers = allUsers.filter(user => user.lastLogin && 
+                new Date(user.lastLogin) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length;
+            document.getElementById('activeUsers').textContent = activeUsers;
+        }
+
+        // View user statistics
+        async function viewUserStats(username) {
+            try {
+                const stats = await window.dbManager.getUserStats(username);
+                if (!stats) {
+                    alert('No statistics found for this user');
+                    return;
+                }
+
+                // Update modal title
+                document.getElementById('userStatsModalLabel').textContent = `Statistics for ${username}`;
+
+                // Create detailed stats HTML
+                let statsHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-chart-line"></i> Overall Statistics</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="stat-item">
+                                                <strong>Games Played:</strong><br>
+                                                <span class="text-primary fs-4">${stats.totalGamesPlayed || 0}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="stat-item">
+                                                <strong>Games Won:</strong><br>
+                                                <span class="text-success fs-4">${stats.totalGamesWon || 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="stat-item">
+                                                <strong>Win Rate:</strong><br>
+                                                <span class="text-info fs-4">${stats.totalGamesPlayed > 0 ? Math.round((stats.totalGamesWon / stats.totalGamesPlayed) * 100) : 0}%</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="stat-item">
+                                                <strong>Total Score:</strong><br>
+                                                <span class="text-warning fs-4">${stats.totalScore || 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <div class="stat-item">
+                                                <strong>Current Streak:</strong><br>
+                                                <span class="text-primary fs-4">${stats.currentStreak || 0}</span>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="stat-item">
+                                                <strong>Max Streak:</strong><br>
+                                                <span class="text-success fs-4">${stats.maxStreak || 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-info text-white">
+                                    <h6 class="mb-0"><i class="fas fa-gamepad"></i> Game-Specific Stats</h6>
+                                </div>
+                                <div class="card-body" style="max-height: 300px; overflow-y: auto;">
+                `;
+
+                if (stats.gameStats) {
+                    Object.keys(stats.gameStats).forEach(game => {
+                        const gameStats = stats.gameStats[game];
+                        const gameName = game.charAt(0).toUpperCase() + game.slice(1);
+                        const winRate = gameStats.gamesPlayed > 0 ? Math.round((gameStats.gamesWon / gameStats.gamesPlayed) * 100) : 0;
+                        
+                        statsHTML += `
+                            <div class="game-stats mb-2 p-2 border rounded">
+                                <strong>${gameName}</strong>
+                                <div class="row text-sm">
+                                    <div class="col-6">Played: ${gameStats.gamesPlayed || 0}</div>
+                                    <div class="col-6">Won: ${gameStats.gamesWon || 0}</div>
+                                    <div class="col-6">Win Rate: ${winRate}%</div>
+                                    <div class="col-6">Streak: ${gameStats.currentStreak || 0}</div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+
+                statsHTML += `
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6 class="mb-0"><i class="fas fa-info-circle"></i> Account Information</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <strong>Account Created:</strong><br>
+                                            <span class="text-muted">${stats.createdAt ? new Date(stats.createdAt).toLocaleDateString() : 'Unknown'}</span>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <strong>Last Updated:</strong><br>
+                                            <span class="text-muted">${stats.lastUpdated ? new Date(stats.lastUpdated).toLocaleDateString() : 'Never'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Update modal content
+                document.getElementById('userStatsContent').innerHTML = statsHTML;
+
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('userStatsModal'));
+                modal.show();
+
+            } catch (error) {
+                console.error('Error loading user stats:', error);
+                alert('Error loading user statistics');
+            }
+        }
+
+        // Delete user
+        async function deleteUser(userId) {
+            if (confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+                try {
+                    const transaction = window.dbManager.db.transaction(['users', 'userStats', 'gameProgress'], 'readwrite');
+                    
+                    // Delete from users
+                    const usersStore = transaction.objectStore('users');
+                    usersStore.delete(userId);
+                    
+                    // Delete from userStats
+                    const statsStore = transaction.objectStore('userStats');
+                    const statsRequest = statsStore.index('username');
+                    const user = allUsers.find(u => u.id === userId);
+                    if (user) {
+                        const statsQuery = statsRequest.get(user.username);
+                        statsQuery.onsuccess = () => {
+                            if (statsQuery.result) {
+                                statsStore.delete(statsQuery.result.userId);
+                            }
+                        };
+                    }
+                    
+                    // Delete from gameProgress
+                    const progressStore = transaction.objectStore('gameProgress');
+                    const progressRequest = progressStore.index('userId');
+                    if (user) {
+                        const progressQuery = progressRequest.getAll(user.username);
+                        progressQuery.onsuccess = () => {
+                            progressQuery.result.forEach(progress => {
+                                progressStore.delete(progress.id);
+                            });
+                        };
+                    }
+                    
+                    transaction.oncomplete = () => {
+                        alert('User deleted successfully');
+                        loadUsers();
+                    };
+                } catch (error) {
+                    alert('Error deleting user');
+                }
+            }
+        }
+
+        // Export all data
+        async function exportData() {
+            try {
+                const exportData = {
+                    users: allUsers,
+                    stats: allStats,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(exportData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `puzzlegrove-export-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                alert('Error exporting data');
+            }
+        }
+
+        // Clear all data
+        async function clearAllData() {
+            if (confirm('Are you sure you want to clear ALL data? This action cannot be undone.')) {
+                try {
+                    await window.dbManager.clearAllData();
+                    alert('All data cleared successfully');
+                    loadUsers();
+                } catch (error) {
+                    alert('Error clearing data');
+                }
+            }
+        }
+
+        // Create test user
+        async function createTestUser() {
+            const testUser = {
+                username: 'testuser' + Date.now(),
+                email: 'test' + Date.now() + '@example.com',
+                password: 'test123',
+                fullName: 'Test User'
+            };
+            
+            try {
+                await window.dbManager.registerUser(testUser);
+                alert('Test user created successfully');
+                loadUsers();
+            } catch (error) {
+                alert('Error creating test user: ' + error.message);
+            }
+        }
+
+        // Reset user stats function
+        async function resetUserStats(username) {
+            if (confirm(`Are you sure you want to reset all statistics for ${username}? This action cannot be undone.`)) {
+                try {
+                    await window.dbManager.resetUserStats(username);
+                    alert(`Statistics for ${username} have been reset successfully.`);
+                    loadUsers(); // Refresh the user list
+                } catch (error) {
+                    alert('Error resetting user statistics: ' + error.message);
+                }
+            }
+        }
+
+        // Admin logout function
+        function adminLogout() {
+            if (confirm('Are you sure you want to logout from admin panel?')) {
+                sessionStorage.removeItem('puzzleGroveAdmin');
+                window.location.href = 'admin-login.html';
+            }
+        }
+    </script>
+</body>
+</html>

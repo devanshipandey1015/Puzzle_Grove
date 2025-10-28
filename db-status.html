@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Status - Puzzle Grove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .status-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        .status-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        .status-icon.success {
+            color: #10b981;
+        }
+        .status-icon.error {
+            color: #ef4444;
+        }
+        .status-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+        .status-message {
+            color: #6b7280;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .status-details {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 5px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #374151;
+        }
+        .detail-value {
+            color: #6b7280;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="status-container">
+        <div class="status-icon" id="statusIcon">
+            <div class="loading"></div>
+        </div>
+        <div class="status-title" id="statusTitle">Checking Database...</div>
+        <div class="status-message" id="statusMessage">Please wait while we verify the database connection.</div>
+        
+        <div class="status-details" id="statusDetails" style="display: none;">
+            <div class="detail-item">
+                <span class="detail-label">Database Name:</span>
+                <span class="detail-value" id="dbName">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Version:</span>
+                <span class="detail-value" id="dbVersion">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Object Stores:</span>
+                <span class="detail-value" id="objectStores">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Total Users:</span>
+                <span class="detail-value" id="totalUsers">-</span>
+            </div>
+            <div class="detail-item">
+                <span class="detail-label">Demo User Status:</span>
+                <span class="detail-value" id="demoUserStatus">-</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="index.html" class="btn btn-primary">
+                <i class="fas fa-home"></i> Back to Games
+            </a>
+            <a href="admin.html" class="btn btn-secondary">
+                <i class="fas fa-cog"></i> Database Admin
+            </a>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusMessage = document.getElementById('statusMessage');
+            const statusDetails = document.getElementById('statusDetails');
+            
+            try {
+                // Initialize database
+                await window.dbManager.init();
+                
+                // Get database info
+                const db = window.dbManager.db;
+                document.getElementById('dbName').textContent = db.name;
+                document.getElementById('dbVersion').textContent = db.version;
+                document.getElementById('objectStores').textContent = Array.from(db.objectStoreNames).join(', ');
+                
+                // Get user count
+                const transaction = db.transaction(['users'], 'readonly');
+                const usersStore = transaction.objectStore('users');
+                const countRequest = usersStore.count();
+                
+                countRequest.onsuccess = () => {
+                    document.getElementById('totalUsers').textContent = countRequest.result;
+                };
+                
+                // Check demo user
+                try {
+                    await window.dbManager.getUserByUsername('dhaarmi');
+                    document.getElementById('demoUserStatus').textContent = 'Available';
+                } catch (error) {
+                    document.getElementById('demoUserStatus').textContent = 'Not Found';
+                }
+                
+                // Update UI
+                statusIcon.innerHTML = '<i class="fas fa-check-circle"></i>';
+                statusIcon.className = 'status-icon success';
+                statusTitle.textContent = 'Database Connected!';
+                statusMessage.textContent = 'The Puzzle Grove database is working correctly. You can now register new users and they will be stored persistently.';
+                statusDetails.style.display = 'block';
+                
+            } catch (error) {
+                console.error('Database error:', error);
+                
+                statusIcon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                statusIcon.className = 'status-icon error';
+                statusTitle.textContent = 'Database Error';
+                statusMessage.textContent = 'There was an error connecting to the database. Please check your browser settings and try again.';
+                statusDetails.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

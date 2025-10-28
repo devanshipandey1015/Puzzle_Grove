@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Fix - Puzzle Grove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .fix-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        .fix-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #f59e0b;
+        }
+        .fix-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #1f2937;
+        }
+        .fix-message {
+            color: #6b7280;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        .fix-details {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .fix-details h4 {
+            color: #92400e;
+            margin-bottom: 15px;
+        }
+        .fix-details ul {
+            color: #92400e;
+            margin: 0;
+            padding-left: 20px;
+        }
+        .fix-details li {
+            margin-bottom: 8px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .status-success {
+            background: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .status-error {
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="fix-container">
+        <div class="fix-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <div class="fix-title">Database Fix Required</div>
+        <div class="fix-message">
+            The database has a shared statistics issue where user stats are not properly separated. 
+            This tool will fix the problem by resetting all user statistics.
+        </div>
+        
+        <div class="fix-details">
+            <h4><i class="fas fa-exclamation-triangle"></i> What This Fix Does:</h4>
+            <ul>
+                <li>Resets all user statistics to zero</li>
+                <li>Ensures each user has separate, isolated stats</li>
+                <li>Fixes the shared statistics bug</li>
+                <li>Maintains user accounts and login data</li>
+                <li>Preserves game progress and settings</li>
+            </ul>
+        </div>
+        
+        <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-warning" id="fixBtn" onclick="fixDatabase()">
+                <i class="fas fa-wrench"></i> Fix Database
+            </button>
+            <a href="admin-login.html" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Admin
+            </a>
+        </div>
+        
+        <div class="status-message" id="statusMessage"></div>
+    </div>
+
+    <script src="database.js"></script>
+    <script src="fix-database.js"></script>
+    <script>
+        async function fixDatabase() {
+            const fixBtn = document.getElementById('fixBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progressFill = document.getElementById('progressFill');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            // Disable button and show progress
+            fixBtn.disabled = true;
+            fixBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Fixing Database...';
+            progressBar.style.display = 'block';
+            
+            try {
+                // Wait for database to be ready
+                await window.dbManager.init();
+                
+                // Get all users
+                const transaction = window.dbManager.db.transaction(['users'], 'readonly');
+                const usersStore = transaction.objectStore('users');
+                const usersRequest = usersStore.getAll();
+                
+                usersRequest.onsuccess = async () => {
+                    const users = usersRequest.result;
+                    console.log(`Found ${users.length} users to fix`);
+                    
+                    // Reset stats for each user
+                    for (let i = 0; i < users.length; i++) {
+                        const user = users[i];
+                        try {
+                            console.log(`Resetting stats for user: ${user.username}`);
+                            await window.dbManager.resetUserStats(user.username);
+                            console.log(`✅ Stats reset for ${user.username}`);
+                            
+                            // Update progress
+                            const progress = ((i + 1) / users.length) * 100;
+                            progressFill.style.width = progress + '%';
+                        } catch (error) {
+                            console.error(`❌ Error resetting stats for ${user.username}:`, error);
+                        }
+                    }
+                    
+                    // Show success message
+                    statusMessage.className = 'status-message status-success';
+                    statusMessage.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Database Fixed Successfully!</strong><br>
+                        All user statistics have been reset and separated. Each user now has their own isolated statistics.
+                    `;
+                    statusMessage.style.display = 'block';
+                    
+                    // Re-enable button
+                    fixBtn.disabled = false;
+                    fixBtn.innerHTML = '<i class="fas fa-check"></i> Database Fixed';
+                };
+                
+                usersRequest.onerror = () => {
+                    statusMessage.className = 'status-message status-error';
+                    statusMessage.innerHTML = `
+                        <i class="fas fa-exclamation-circle"></i>
+                        <strong>Error:</strong> Failed to load users for database fix.
+                    `;
+                    statusMessage.style.display = 'block';
+                    
+                    fixBtn.disabled = false;
+                    fixBtn.innerHTML = '<i class="fas fa-wrench"></i> Fix Database';
+                };
+                
+            } catch (error) {
+                console.error('Error during database fix:', error);
+                statusMessage.className = 'status-message status-error';
+                statusMessage.innerHTML = `
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>Error:</strong> ${error.message}
+                `;
+                statusMessage.style.display = 'block';
+                
+                fixBtn.disabled = false;
+                fixBtn.innerHTML = '<i class="fas fa-wrench"></i> Fix Database';
+            }
+        }
+    </script>
+</body>
+</html>

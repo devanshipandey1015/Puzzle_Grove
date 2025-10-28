@@ -1,0 +1,702 @@
+/* Wordle - Puzzle Grove Styles */
+
+:root {
+    /* Game Colors */
+    --wordle-bg: #ffffff;
+    --wordle-text: #1a1a1b;
+    --tile-border: #d3d6da;
+    --key-bg: #d3d6da;
+    --key-text: #1a1a1b;
+    --absent: #787c7e;
+    --present: #c9b458;
+    --correct: #6aaa64;
+    --key-hover: #bbbec3;
+    --modal-bg: #ffffff;
+
+    /* Game sizes */
+    --tile-size: 62px;
+    --key-height: 58px;
+    --keyboard-width: 500px;
+}
+
+/* Dark mode variables */
+body.dark-theme {
+    --wordle-bg: #121213;
+    --wordle-text: #d7dadc;
+    --tile-border: #3a3a3c;
+    --key-bg: #818384;
+    --key-text: #ffffff;
+    --key-hover: #565758;
+    --modal-bg: #121213;
+}
+
+/* High contrast mode variables */
+body.high-contrast {
+    --present: #f5793a;
+    --correct: #85c0f9;
+}
+
+/* Game-specific body styling */
+body {
+    background-color: var(--wordle-bg);
+    color: var(--wordle-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+    font-family: 'Clear Sans', 'Quicksand', Arial, sans-serif;
+}
+
+/* Header styling */
+.game-header {
+    width: 100%;
+    border-bottom: 1px solid var(--tile-border);
+    padding: 10px 0;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.header-content {
+    width: 95%;
+    max-width: 550px;
+    margin: 0 auto;
+    display: grid;
+    /* Using fixed width for side columns ensures equal space on both sides */
+    grid-template-columns: minmax(40px, 1fr) auto minmax(40px, 1fr);
+    align-items: center;
+    position: relative;
+}
+
+.back-button {
+    color: var(--wordle-text);
+    font-size: 20px;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    grid-column: 1;
+    width: fit-content;
+}
+
+.back-button:hover {
+    background-color: var(--key-hover);
+}
+
+.game-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    text-align: center;
+    grid-column: 2;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    /* Make sure the width is enough to display "WORDLE" properly */
+    min-width: max-content;
+    padding: 0 10px;
+}
+
+.game-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    grid-column: 3;
+    /* Ensure actions have same width as back button area for balance */
+    min-width: 40px;
+}
+
+.icon-button {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--wordle-text);
+    cursor: pointer;
+    padding: 5px 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-button:hover {
+    background-color: var(--key-hover);
+}
+
+/* Main game container */
+.wordle-game {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto;
+    padding: 10px 0;
+    box-sizing: border-box;
+}
+
+/* Game Board */
+.game-board {
+    display: grid;
+    grid-template-rows: repeat(6, var(--tile-size));
+    gap: 5px;
+    margin-bottom: 30px;
+}
+
+.board-row {
+    display: grid;
+    grid-template-columns: repeat(5, var(--tile-size));
+    gap: 5px;
+}
+
+.tile {
+    width: var(--tile-size);
+    height: var(--tile-size);
+    border: 2px solid var(--tile-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: bold;
+    text-transform: uppercase;
+    user-select: none;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.tile[data-state="empty"] {
+    border: 2px solid var(--tile-border);
+    background-color: transparent;
+}
+
+.tile[data-state="tbd"] {
+    border-color: #878a8c;
+    background-color: transparent;
+}
+
+.tile[data-state="correct"] {
+    background-color: var(--correct);
+    border-color: var(--correct);
+    color: white;
+}
+
+.tile[data-state="present"] {
+    background-color: var(--present);
+    border-color: var(--present);
+    color: white;
+}
+
+.tile[data-state="absent"] {
+    background-color: var(--absent);
+    border-color: var(--absent);
+    color: white;
+}
+
+.tile.pop {
+    transform: scale(1.1);
+    border-color: #565758;
+}
+
+/* Tile flip animation */
+.tile.flip {
+    transform: rotateX(90deg);
+    transition: transform 0.25s;
+}
+
+/* Shake animation for invalid words */
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-5px); }
+    40% { transform: translateX(5px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+
+.board-row.shake {
+    animation: shake 0.5s;
+}
+
+/* Message container */
+#message-container {
+    position: relative;
+    height: 40px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.message {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.85);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 10;
+}
+
+.message.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.message.hide {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+}
+
+/* Keyboard */
+.keyboard {
+    width: var(--keyboard-width);
+    max-width: 95vw;
+    margin: 0 auto;
+    margin-bottom: 20px;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+    touch-action: manipulation;
+}
+
+.key {
+    font-family: inherit;
+    font-weight: bold;
+    border: 0;
+    padding: 0;
+    margin: 0 6px 0 0;
+    height: var(--key-height);
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: var(--key-bg);
+    color: var(--key-text);
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.key:last-of-type {
+    margin-right: 0;
+}
+
+.key:hover {
+    background-color: var(--key-hover);
+}
+
+.key[data-state="correct"] {
+    background-color: var(--correct);
+    color: white;
+}
+
+.key[data-state="present"] {
+    background-color: var(--present);
+    color: white;
+}
+
+.key[data-state="absent"] {
+    background-color: var(--absent);
+    color: white;
+}
+
+.key-wide {
+    flex: 1.5;
+    font-size: 12px;
+}
+
+.spacer {
+    flex: 0.5;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 100;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.modal.show {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    opacity: 1;
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    margin: 80px auto 0;
+    width: 90%;
+    max-width: 500px;
+    border-radius: 12px;
+    box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.3s;
+    transform: translateY(20px);
+    opacity: 0;
+}
+
+.modal.show .modal-content {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.modal-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--tile-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.close {
+    color: var(--wordle-text);
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+    color: var(--wordle-text);
+}
+
+.modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid var(--tile-border);
+    text-align: center;
+    font-size: 14px;
+    color: var(--wordle-text);
+    opacity: 0.7;
+}
+
+/* Examples for help modal */
+.examples {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.example {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.example-tiles {
+    display: flex;
+    gap: 5px;
+}
+
+.example-tile {
+    width: 40px;
+    height: 40px;
+    font-size: 22px;
+}
+
+.example-tile.correct {
+    background-color: var(--correct);
+    border-color: var(--correct);
+    color: white;
+}
+
+.example-tile.present {
+    background-color: var(--present);
+    border-color: var(--present);
+    color: white;
+}
+
+.example-tile.absent {
+    background-color: var(--absent);
+    border-color: var(--absent);
+    color: white;
+}
+
+/* Stats modal */
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.stat-label {
+    font-size: 12px;
+    text-align: center;
+}
+
+.guess-distribution {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.guess-row {
+    display: flex;
+    align-items: center;
+}
+
+.guess-number {
+    width: 20px;
+    text-align: right;
+    margin-right: 5px;
+}
+
+.guess-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: var(--key-bg);
+    height: 20px;
+    padding: 0 8px;
+    font-weight: bold;
+    color: white;
+    box-sizing: border-box;
+    min-width: 20px;
+}
+
+.guess-bar.win {
+    background-color: var(--correct);
+}
+
+.next-wordle {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.share-button, .play-again-button {
+    background-color: var(--correct);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background-color 0.2s;
+}
+
+.share-button:hover, .play-again-button:hover {
+    background-color: #5b9157;
+}
+
+/* Settings modal */
+.setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--tile-border);
+}
+
+.setting:last-child {
+    border-bottom: none;
+}
+
+.setting-text {
+    flex: 1;
+}
+
+.setting-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.setting-description {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.setting-control {
+    width: 50px;
+}
+
+/* Toggle Switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+}
+
+input:checked + .slider {
+    background-color: var(--correct);
+}
+
+input:checked + .slider:before {
+    transform: translateX(16px);
+}
+
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Word reveal */
+.word-reveal {
+    text-align: center;
+    margin: 15px 0;
+    font-size: 18px;
+}
+
+/* Footer */
+.game-footer {
+    margin-top: auto;
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--wordle-text);
+    border-top: 1px solid var(--tile-border);
+    width: 100%;
+}
+
+.game-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.game-footer a:hover {
+    text-decoration: underline;
+}
+
+/* Wordle-specific background */
+.wordle-bg {
+    background-image: 
+        radial-gradient(circle at 15% 50%, rgba(106, 170, 100, 0.06) 0, transparent 35%),
+        radial-gradient(circle at 85% 30%, rgba(201, 180, 88, 0.05) 0, transparent 30%);
+    opacity: 0.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 500px) {
+    :root {
+        --tile-size: 54px;
+        --key-height: 48px;
+        --keyboard-width: 100%;
+    }
+
+    .header-content {
+        width: 100%;
+    }
+
+    .game-board {
+        gap: 4px;
+    }
+
+    .board-row {
+        gap: 4px;
+    }
+
+    .key {
+        margin: 0 3px 0 0;
+        font-size: 12px;
+    }
+
+    .tile {
+        font-size: 28px;
+    }
+}
+
+/* Responsive header adjustments */
+@media (max-width: 450px) {
+    .game-header h1 {
+        font-size: 24px;
+    }
+    
+    .icon-button {
+        font-size: 18px;
+        padding: 5px 6px;
+    }
+    
+    .back-button {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 350px) {
+    :root {
+        --tile-size: 48px;
+        --key-height: 42px;
+    }
+
+    .key-wide {
+        font-size: 10px;
+    }
+}

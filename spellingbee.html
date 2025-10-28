@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spelling Bee - Puzzle Grove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Quicksand:wght@400;500;600&family=Clear+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="spellingbee.css">
+</head>
+<body>
+    <div class="animated-bg spellingbee-bg">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <header class="game-header">
+        <div class="header-content">
+            <a href="index.html" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Spelling Bee</h1>
+            <div class="game-actions">
+                <button id="helpBtn" class="icon-button" aria-label="Help">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                <button id="statsBtn" class="icon-button" aria-label="Statistics">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+                <button id="settingsBtn" class="icon-button" aria-label="Settings">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="spellingbee-game">
+        <div id="messageDisplay" class="message-display"></div>
+        
+        <div class="game-container">
+            <div class="score-section">
+                <div class="score-display">
+                    <div id="current-score">0</div>
+                    <div class="score-label">points</div>
+                </div>
+                <div class="rank-display">
+                    <div id="current-rank">Beginner</div>
+                </div>
+            </div>
+
+            <div class="game-status">
+                <div class="found-counter">
+                    <span>Words found:</span>
+                    <span id="found-count">0</span>
+                </div>
+                <div class="total-counter">
+                    <span>Possible words:</span>
+                    <span id="total-possible">?</span>
+                </div>
+            </div>
+
+            <div class="hive-container">
+                <div class="hive">
+                    <div class="hex-row">
+                        <div class="hex-cell" data-letter=""></div>
+                    </div>
+                    <div class="hex-row">
+                        <div class="hex-cell" data-letter=""></div>
+                        <div class="hex-cell center required" data-letter=""></div>
+                        <div class="hex-cell" data-letter=""></div>
+                    </div>
+                    <div class="hex-row">
+                        <div class="hex-cell" data-letter=""></div>
+                        <div class="hex-cell" data-letter=""></div>
+                        <div class="hex-cell" data-letter=""></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <div class="word-display" id="current-word"></div>
+                <div class="button-row">
+                    <button id="delete-btn" class="control-button" aria-label="Delete last letter">
+                        <i class="fas fa-backspace"></i>
+                    </button>
+                    <button id="shuffle-btn" class="control-button" aria-label="Shuffle letters">
+                        <i class="fas fa-random"></i>
+                    </button>
+                    <button id="enter-btn" class="primary-button" aria-label="Submit word">Enter</button>
+                </div>
+            </div>
+
+            <div class="found-words">
+                <h3>Found Words</h3>
+                <div id="words-list"></div>
+            </div>
+
+            <!-- NYT style: no New Game or Reveal All controls -->
+        </div>
+    </main>
+    
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>How to Play</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>Create words using the available letters in the honeycomb!</p>
+                <ul>
+                    <li>Words must be at least 4 letters long.</li>
+                    <li>Words must include the center letter (highlighted in yellow).</li>
+                    <li>Letters can be used more than once.</li>
+                    <li>Scoring uses Scrabble letter values (A=1, B=3, C=3, D=2, ... Q=10, Z=10).</li>
+                    <li>Pangrams (using all 7 letters) are allowed but have no extra bonus.</li>
+                </ul>
+                <p>Ranks:</p>
+                <ul>
+                    <li>Beginner: 0% of possible points</li>
+                    <li>Good Start: 2%</li>
+                    <li>Moving Up: 5%</li>
+                    <li>Good: 8%</li>
+                    <li>Solid: 15%</li>
+                    <li>Nice: 25%</li>
+                    <li>Great: 40%</li>
+                    <li>Amazing: 50%</li>
+                    <li>Genius: 70%</li>
+                    <li>Queen Bee: 100%</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stats Modal -->
+    <div id="statsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Statistics</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div id="gamesPlayed" class="stat-value">0</div>
+                        <div class="stat-label">Games Played</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="totalScore" class="stat-value">0</div>
+                        <div class="stat-label">Total Score</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="wordsFound" class="stat-value">0</div>
+                        <div class="stat-label">Words Found</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="pangrams" class="stat-value">0</div>
+                        <div class="stat-label">Pangrams</div>
+                    </div>
+                </div>
+                <div class="share-section">
+                    <button id="shareButton" class="primary-button">
+                        Share <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Settings</h2>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="setting-item">
+                    <span>Dark Theme</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="darkThemeToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>High Contrast</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="highContrastToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <span>Sound Effects</span>
+                    <label class="toggle">
+                        <input type="checkbox" id="soundToggle">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Removed standalone Game End modal; we use Stats modal like NYT -->
+    
+    <!-- Removed Reveal All modal for NYT style -->
+    
+    <!-- Main spellingbee script -->
+    <script src="database.js"></script>
+    <script src="spellingbee.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>

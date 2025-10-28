@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Puzzle Grove</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;700&family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="animated-bg">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <a href="index.html" class="back-home">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+    </a>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Welcome Back</h1>
+                <p>Login to continue your word puzzle journey</p>
+            </div>
+
+            <div id="errorMessage" class="error-message"></div>
+            <div id="successMessage" class="success-message"></div>
+
+            <form class="auth-form" id="loginForm" novalidate>
+                <div class="form-group mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username" 
+                        class="form-control"
+                        required 
+                        placeholder="Enter your username"
+                        autocomplete="username"
+                    >
+                    <div class="invalid-feedback" id="username-feedback"></div>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        class="form-control"
+                        required 
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                    >
+                    <div class="invalid-feedback" id="password-feedback"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" id="loginBtn">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Login
+                </button>
+            </form>
+
+            <div class="auth-links">
+                <p>Don't have an account? <a href="register.html">Register here</a></p>
+                <br>
+                <p style="font-size: 0.8rem; color: #6b7280; font-style: italic;">
+                    Demo Account: Username: <strong>devanshi</strong> | Password: <strong>2005</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script>
+        class LoginManager {
+            constructor() {
+                this.hardcodedUser = {
+                    username: 'devanshi',
+                    password: '2005'
+                };
+                this.init();
+            }
+
+            init() {
+                const form = document.getElementById('loginForm');
+                form.addEventListener('submit', (e) => {
+                    this.handleLogin(e);
+                });
+
+                // Add real-time validation
+                document.getElementById('username').addEventListener('blur', () => {
+                    this.validateUsername();
+                });
+
+                document.getElementById('password').addEventListener('blur', () => {
+                    this.validatePassword();
+                });
+            }
+
+            async handleLogin(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value.trim();
+                const password = document.getElementById('password').value;
+                
+                this.clearMessages();
+                
+                // Validate form using Bootstrap validation
+                if (!this.validateForm()) {
+                    return;
+                }
+                
+                try {
+                    // Check hardcoded credentials first
+                    if (username === this.hardcodedUser.username && password === this.hardcodedUser.password) {
+                        this.loginSuccess(username);
+                        return;
+                    }
+                    
+                    // Check database for registered users
+                    const user = await window.dbManager.authenticateUser(username, password);
+                    this.loginSuccess(user.username, user);
+                } catch (error) {
+                    this.showError(error.message || 'Invalid username or password. Please try again.');
+                }
+            }
+
+            validateForm() {
+                const username = document.getElementById('username');
+                const password = document.getElementById('password');
+                let isValid = true;
+
+                // Validate username
+                if (!this.validateUsername()) {
+                    isValid = false;
+                }
+
+                // Validate password
+                if (!this.validatePassword()) {
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            validateUsername() {
+                const username = document.getElementById('username');
+                const feedback = document.getElementById('username-feedback');
+                
+                if (!username.value.trim()) {
+                    username.classList.add('is-invalid');
+                    feedback.textContent = 'Username is required.';
+                    return false;
+                } else if (username.value.trim().length < 3) {
+                    username.classList.add('is-invalid');
+                    feedback.textContent = 'Username must be at least 3 characters.';
+                    return false;
+                } else {
+                    username.classList.remove('is-invalid');
+                    username.classList.add('is-valid');
+                    return true;
+                }
+            }
+
+            validatePassword() {
+                const password = document.getElementById('password');
+                const feedback = document.getElementById('password-feedback');
+                
+                if (!password.value) {
+                    password.classList.add('is-invalid');
+                    feedback.textContent = 'Password is required.';
+                    return false;
+                } else if (password.value.length < 4) {
+                    password.classList.add('is-invalid');
+                    feedback.textContent = 'Password must be at least 4 characters.';
+                    return false;
+                } else {
+                    password.classList.remove('is-invalid');
+                    password.classList.add('is-valid');
+                    return true;
+                }
+            }
+
+            async loginSuccess(username, userData = null) {
+                try {
+                    // Get user stats from database
+                    const stats = await window.dbManager.getUserStats(username);
+                    
+                    // Create user session
+                    const sessionData = {
+                        username: username,
+                        streak: stats ? stats.currentStreak : 1,
+                        lastLogin: new Date().toDateString(),
+                        loginTime: new Date().toISOString(),
+                        userId: userData ? userData.id : null,
+                        totalGamesPlayed: stats ? stats.totalGamesPlayed : 0,
+                        totalScore: stats ? stats.totalScore : 0
+                    };
+                    
+                    // Save to localStorage
+                    localStorage.setItem('puzzleGroveUser', JSON.stringify(sessionData));
+                    
+                    // Show success message
+                    this.showSuccess(`Welcome back, ${username}! Redirecting...`);
+                    
+                    // Redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                } catch (error) {
+                    console.error('Error loading user stats:', error);
+                    // Fallback to basic session
+                    const sessionData = {
+                        username: username,
+                        streak: 1,
+                        lastLogin: new Date().toDateString(),
+                        loginTime: new Date().toISOString()
+                    };
+                    localStorage.setItem('puzzleGroveUser', JSON.stringify(sessionData));
+                    this.showSuccess(`Welcome back, ${username}! Redirecting...`);
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1500);
+                }
+            }
+
+            getUserStreak(username) {
+                const userStats = localStorage.getItem(`puzzleGroveStats_${username}`);
+                if (userStats) {
+                    const stats = JSON.parse(userStats);
+                    return stats.streak || 1;
+                }
+                return 1; // First time login
+            }
+
+            getRegisteredUsers() {
+                const users = localStorage.getItem('puzzleGroveRegisteredUsers');
+                return users ? JSON.parse(users) : [];
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('errorMessage');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+
+            showSuccess(message) {
+                const successDiv = document.getElementById('successMessage');
+                successDiv.textContent = message;
+                successDiv.style.display = 'block';
+            }
+
+            clearMessages() {
+                document.getElementById('errorMessage').style.display = 'none';
+                document.getElementById('successMessage').style.display = 'none';
+            }
+        }
+
+        // Initialize login manager
+        new LoginManager();
+
+        // Add enter key support for form submission
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.target.closest('.auth-form')) {
+                e.preventDefault();
+                document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+</body>
+</html>
