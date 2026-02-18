@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'crosswordStats',
         'hangmanStats',
         'synonymStats',
-        'puzzleGroveStats_dhaarmi',
+        'puzzleGroveStats_devanshi',
         'puzzleGroveStats_test4',
         'puzzleGroveStats_test5',
         'puzzleGroveStats_strads'

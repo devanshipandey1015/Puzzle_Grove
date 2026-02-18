@@ -81,7 +81,7 @@ Unscramble letters to form words related to specific themes across five difficul
 3. Start playing immediately or create an account for progress tracking
 
 ### Demo Account
-- **Username**: `dhaarmi`
+- **Username**: `devanshi`
 - **Password**: `2005`
 
 ## 📱 Browser Compatibility
