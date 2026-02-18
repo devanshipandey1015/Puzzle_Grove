@@ -2,9 +2,6 @@
 // This script clears all localStorage game statistics to force database usage
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Clearing localStorage game statistics...');
-    
-    // List of all localStorage keys that store game statistics
     const statsKeys = [
         'wordleStats',
         'connectionsStats', 
@@ -24,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     statsKeys.forEach(key => {
         if (localStorage.getItem(key)) {
             localStorage.removeItem(key);
-            console.log(`Cleared ${key} from localStorage`);
         }
     });
     
@@ -32,10 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     Object.keys(localStorage).forEach(key => {
         if (key.includes('Stats') || key.includes('puzzleGroveStats_')) {
             localStorage.removeItem(key);
-            console.log(`Cleared ${key} from localStorage`);
         }
     });
     
-    console.log('localStorage statistics cleared successfully!');
-    console.log('Games will now use the database for statistics.');
 });

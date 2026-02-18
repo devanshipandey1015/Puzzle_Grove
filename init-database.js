@@ -8,17 +8,14 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Check if demo user exists, if not create it
     try {
         await window.dbManager.getUserByUsername('dhaarmi');
-        console.log('Demo user already exists');
-    } catch (error) {
-        // Demo user doesn't exist, create it
+    } catch (_) {
         try {
-            const demoUser = await window.dbManager.registerUser({
+            await window.dbManager.registerUser({
                 username: 'dhaarmi',
                 email: 'demo@puzzlegrove.com',
                 password: '2005',
                 fullName: 'Demo User'
             });
-            console.log('Demo user created successfully:', demoUser);
         } catch (createError) {
             console.error('Error creating demo user:', createError);
         }
@@ -57,11 +54,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 maxStreak: 2
             });
             
-            console.log('Demo user stats initialized');
         }
     } catch (error) {
         console.error('Error initializing demo user stats:', error);
     }
-    
-    console.log('Database initialization complete');
 });

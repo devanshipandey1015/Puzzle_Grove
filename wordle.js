@@ -34,7 +34,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 .map(word => word.trim().toUpperCase())
                 .filter(word => word.length === 5);
                 
-            console.log(`Loaded ${WORDS.length} 5-letter words`);
             
             // If no words were loaded or the file was empty, use a fallback
             if (WORDS.length === 0) {
@@ -78,13 +77,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function loadGameState() {
         try {
             // Check if database manager is available
-            if (typeof window.dbManager === 'undefined') {
-                console.log('Database manager not available, using default stats');
-                return;
-            }
-            
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            if (typeof window.dbManager === 'undefined') return;
+            const currentUser = window.safeParseJSON && window.safeParseJSON(localStorage.getItem('puzzleGroveUser'), null);
             if (currentUser && currentUser.username) {
                 // Load stats from database
                 const userStats = await window.dbManager.getUserStats(currentUser.username);
@@ -127,13 +121,8 @@ document.addEventListener('DOMContentLoaded', async function() {
     async function saveGameState() {
         try {
             // Check if database manager is available
-            if (typeof window.dbManager === 'undefined') {
-                console.log('Database manager not available, skipping save');
-                return;
-            }
-            
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            if (typeof window.dbManager === 'undefined') return;
+            const currentUser = window.safeParseJSON && window.safeParseJSON(localStorage.getItem('puzzleGroveUser'), null);
             if (currentUser && currentUser.username) {
                 // Save stats to database
                 await window.dbManager.updateUserStats(currentUser.username, 'wordle', {
@@ -242,7 +231,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Only select a word if WORDS array has been populated
         if (WORDS.length > 0) {
             targetWord = selectRandomWord();
-            console.log("Target word:", targetWord); // For debugging
             currentRow = 0;
             currentTile = 0;
             gameOver = false;

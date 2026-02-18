@@ -1,7 +1,8 @@
 /* Hangman Game Styles */
+@import url("src/styles/theme.css");
 
 .hangman-bg {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg);
     position: fixed;
     top: 0;
     left: 0;
@@ -14,9 +15,9 @@
     position: absolute;
     width: 20px;
     height: 20px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.04);
     border-radius: 50%;
-    animation: float 6s ease-in-out infinite;
+    animation: float 8s ease-in-out infinite;
 }
 
 .hangman-bg div:nth-child(1) {
@@ -86,31 +87,30 @@
 }
 
 .stat-item {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
+    background: var(--card-bg);
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.2);
     min-width: 100px;
-    transition: all 0.3s ease;
+    transition: box-shadow 0.2s ease;
 }
 
 .stat-item:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .stat-value {
     font-size: 2rem;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--primary-text);
     margin-bottom: 5px;
 }
 
 .stat-label {
     font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--secondary-text);
     font-weight: 500;
 }
 
@@ -188,7 +188,7 @@
 
 .letter-blank.revealed {
     background: #ffffff;
-    border-color: #4CAF50;
+    border-color: var(--accent);
     animation: revealLetter 0.6s ease;
 }
 
@@ -268,15 +268,15 @@
 
 .letter-button:hover:not(.used) {
     background: #ffffff;
-    border-color: #667eea;
+    border-color: var(--accent);
     transform: translateY(-2px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 .letter-button.correct {
-    background: #4CAF50;
+    background: var(--accent);
     color: #ffffff;
-    border-color: #4CAF50;
+    border-color: var(--accent);
     cursor: not-allowed;
 }
 
@@ -300,40 +300,7 @@
     margin-top: 30px;
 }
 
-.control-button, .primary-button {
-    padding: 15px 30px;
-    border: none;
-    border-radius: 25px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.control-button {
-    background: rgba(255, 107, 107, 0.2);
-    color: #ffffff;
-}
-
-.control-button:hover {
-    background: rgba(255, 107, 107, 0.3);
-    transform: translateY(-2px);
-}
-
-.primary-button {
-    background: rgba(76, 175, 80, 0.3);
-    color: #ffffff;
-}
-
-.primary-button:hover {
-    background: rgba(76, 175, 80, 0.4);
-    transform: translateY(-2px);
-}
+/* .control-button, .primary-button from components.css */
 
 /* Hangman drawing animation */
 .hangman-part-appear {
@@ -368,16 +335,17 @@
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) scale(0.9);
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    padding: 0;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    transform: translate(-50%, -50%) scale(0.98);
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     max-width: 500px;
     width: 90%;
     max-height: 80vh;
     overflow-y: auto;
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
 .modal.show .modal-content {
@@ -385,10 +353,9 @@
 }
 
 .modal-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 20px 30px;
-    border-radius: 20px 20px 0 0;
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -396,15 +363,16 @@
 
 .modal-header h2 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     font-weight: 700;
+    color: var(--primary-text);
 }
 
 .close {
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-text);
     cursor: pointer;
-    transition: opacity 0.3s ease;
 }
 
 .close:hover {
@@ -412,7 +380,7 @@
 }
 
 .modal-body {
-    padding: 30px;
+    padding: 0;
 }
 
 .hint-info {
@@ -435,7 +403,7 @@
 }
 
 .hint-item strong {
-    color: #667eea;
+    color: var(--accent);
     font-weight: 600;
 }
 
@@ -475,7 +443,7 @@
 
 .word-reveal strong {
     font-size: 1.5rem;
-    color: #667eea;
+    color: var(--accent);
     letter-spacing: 2px;
 }
 
@@ -566,7 +534,7 @@
 }
 
 .toggle input:checked + .toggle-slider {
-    background-color: #667eea;
+    background-color: var(--accent);
 }
 
 .toggle input:checked + .toggle-slider:before {
@@ -625,7 +593,7 @@
     }
     
     .control-button, .primary-button {
-        padding: 12px 20px;
+        padding: 10px 16px;
         font-size: 0.9rem;
     }
     
@@ -697,8 +665,8 @@ body.dark-theme .letter-blank {
 }
 
 body.dark-theme .letter-blank.revealed {
-    background: rgba(76, 175, 80, 0.3);
-    border-color: #4CAF50;
+    background: rgba(13, 148, 136, 0.2);
+    border-color: var(--accent);
     color: #ffffff;
 }
 
@@ -710,7 +678,7 @@ body.dark-theme .letter-button {
 
 body.dark-theme .letter-button:hover:not(.used) {
     background: rgba(255, 255, 255, 0.2);
-    border-color: #667eea;
+    border-color: var(--accent);
 }
 
 body.dark-theme .modal-content {

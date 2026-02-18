@@ -1,6 +1,17 @@
 // Database Manager for Puzzle Grove
 // Handles user registration, authentication, and data persistence using IndexedDB
 
+/** Safe JSON parse for localStorage/sessionStorage. Returns fallback on invalid or null. */
+function safeParseJSON(str, fallback) {
+    try {
+        if (str == null || str === '') return fallback;
+        return JSON.parse(str);
+    } catch (_) {
+        return fallback;
+    }
+}
+window.safeParseJSON = safeParseJSON;
+
 class DatabaseManager {
     constructor() {
         this.dbName = 'PuzzleGroveDB';
@@ -21,7 +32,6 @@ class DatabaseManager {
 
             request.onsuccess = () => {
                 this.db = request.result;
-                console.log('Database opened successfully');
                 resolve(this.db);
             };
 
@@ -54,7 +64,6 @@ class DatabaseManager {
             progressStore.createIndex('game', 'game');
         }
 
-        console.log('Object stores created successfully');
     }
 
     // User Management Methods

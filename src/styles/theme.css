@@ -1,0 +1,112 @@
+/**
+ * Puzzle Grove – Global design system
+ * Use these tokens everywhere for consistent look and feel.
+ * Load this file first (e.g. before index.css).
+ */
+
+:root {
+    /* ─── Colors ─────────────────────────────────────────────────────────── */
+    --bg: #FFFFFF;
+    --card-bg: #F9FAFB;
+    --primary-text: #111827;
+    --secondary-text: #6B7280;
+    --accent: #2563EB;
+    --accent-hover: #1D4ED8;
+    --border: #E5E7EB;
+    --btn-secondary-hover: #F3F4F6;
+
+    /* Semantic: accent tints (use instead of hardcoded rgba) */
+    --accent-subtle-bg: rgba(37, 99, 235, 0.06);
+    --accent-subtle-border: rgba(37, 99, 235, 0.15);
+    --accent-subtle-border-strong: rgba(37, 99, 235, 0.2);
+    --accent-focus-ring: rgba(37, 99, 235, 0.12);
+    --accent-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+
+    /* Semantic: error */
+    --error-subtle-bg: rgba(239, 68, 68, 0.06);
+    --error-subtle-border: rgba(239, 68, 68, 0.2);
+    --error-text: #b91c1c;
+
+    /* Text on accent (buttons, badges) */
+    --text-on-accent: #ffffff;
+
+    /* ─── Spacing (8px scale: 8, 16, 24, 32, 40, 48, 56, 64) ────────────────── */
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 32px;
+    --space-5: 40px;
+    --space-6: 48px;
+    --space-7: 56px;
+    --space-8: 64px;
+    --space-10: var(--space-5);
+    --space-12: var(--space-6);
+    --space-14: var(--space-7);
+    --space-16: var(--space-8);
+
+    /* ─── Border radius (8px / 12px) ──────────────────────────────────────── */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 12px;
+
+    /* ─── Shadows (subtle) ────────────────────────────────────────────────── */
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-card-hover: 0 8px 24px rgba(0, 0, 0, 0.06);
+
+    /* ─── Typography ─────────────────────────────────────────────────────── */
+    --text-h1: 1.875rem;      /* 30px */
+    --text-h2: 1.5rem;        /* 24px */
+    --text-body: 1rem;        /* 16px */
+    --text-small: 0.875rem;   /* 14px */
+    --text-xs: 0.75rem;       /* 12px */
+
+    /* Legacy scale (aliased for compatibility) */
+    --text-sm: 0.875rem;
+    --text-base: 1rem;
+    --text-lg: 1.125rem;
+    --text-xl: 1.25rem;
+    --text-2xl: 1.5rem;
+    --text-3xl: 1.875rem;
+
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+
+    /* ─── Transitions ───────────────────────────────────────────────────── */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.2s ease;
+}
+
+/* Dark theme – toggle via data-theme="dark" on <html> */
+[data-theme="dark"] {
+    --bg: #121212;
+    --card-bg: #1E1E1E;
+    --primary-text: #E5E7EB;
+    --secondary-text: #9CA3AF;
+    --accent: #BB86FC;
+    --accent-hover: #9B6CF3;
+    --border: #2C2C2C;
+    --btn-secondary-hover: #2C2C2C;
+
+    --accent-subtle-bg: rgba(187, 134, 252, 0.08);
+    --accent-subtle-border: rgba(187, 134, 252, 0.2);
+    --accent-subtle-border-strong: rgba(187, 134, 252, 0.35);
+    --accent-focus-ring: rgba(187, 134, 252, 0.2);
+    --accent-shadow: 0 4px 12px rgba(187, 134, 252, 0.25);
+
+    --error-subtle-bg: rgba(239, 68, 68, 0.12);
+    --error-subtle-border: rgba(239, 68, 68, 0.25);
+    --error-text: #fca5a5;
+
+    --text-on-accent: #ffffff;
+
+    /* Ambient bg gradients (dark theme) */
+    --animated-bg-accent: radial-gradient(circle, rgba(187, 134, 252, 0.08) 0%, transparent 70%);
+    --animated-bg-accent-subtle: radial-gradient(circle, rgba(187, 134, 252, 0.06) 0%, transparent 70%);
+    --animated-bg-muted: radial-gradient(circle, rgba(156, 163, 175, 0.06) 0%, transparent 70%);
+
+    --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.25);
+    --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.35);
+}

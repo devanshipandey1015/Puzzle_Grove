@@ -1,18 +1,19 @@
 /* Spelling Bee - Puzzle Grove Styles */
+@import url("src/styles/theme.css");
 
 :root {
-    /* Game Colors */
-    --spellingbee-bg: #ffffff;
-    --spellingbee-text: #1a1a1b;
-    --spellingbee-primary: #f59e0b;
-    --spellingbee-accent: #fbbf24;
+    /* Use global palette for page chrome */
+    --spellingbee-bg: var(--bg);
+    --spellingbee-text: var(--primary-text);
+    --spellingbee-primary: var(--accent);
+    --spellingbee-accent: var(--accent-hover);
     --spellingbee-correct: #4ade80;
     --spellingbee-incorrect: #f43f5e;
-    --spellingbee-hex-border: #e5e7eb;
-    --spellingbee-hex-bg: #f8fafc;
-    --spellingbee-center-bg: #fbbf24;
-    --spellingbee-center-text: #854d0e;
-    --modal-bg: #ffffff;
+    --spellingbee-hex-border: var(--border);
+    --spellingbee-hex-bg: var(--card-bg);
+    --spellingbee-center-bg: var(--accent);
+    --spellingbee-center-text: var(--primary-text);
+    --modal-bg: var(--card-bg);
 }
 
 /* Dark mode variables */
@@ -112,16 +113,13 @@ body.dark-theme .game-header {
     background-color: rgba(18, 18, 19, 0.85);
 }
 
-.header-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+.game-header .page-header__inner {
     max-width: 800px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 var(--space-5);
 }
 
-.game-header h1 {
+.game-header .page-header__title {
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 1.8rem;
@@ -394,47 +392,9 @@ body.dark-theme .icon-button:hover {
     max-width: 400px;
 }
 
-.control-button {
-    background-color: var(--spellingbee-hex-bg);
-    border: 1px solid var(--spellingbee-hex-border);
-    color: var(--spellingbee-text);
-    padding: 12px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-family: 'Quicksand', sans-serif;
-    transition: all 0.2s ease;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.control-button:hover {
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-.primary-button {
-    background-color: var(--spellingbee-primary);
-    color: white;
-    border: none;
-    padding: 12px 15px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 600;
-    font-family: 'Quicksand', sans-serif;
-    transition: all 0.2s ease;
-    flex: 1.5;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.primary-button:hover {
-    filter: brightness(1.1);
-    transform: translateY(-2px);
-}
+/* Button flex for input section */
+.input-section .control-button { flex: 1; }
+.input-section .primary-button { flex: 1.5; }
 
 /* Found words */
 .found-words {
@@ -493,19 +453,22 @@ body.dark-theme .icon-button:hover {
 }
 
 .modal-content {
-    background-color: var(--modal-bg);
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     width: 90%;
     max-width: 500px;
     opacity: 0;
     transform: translateY(20px);
-    transition: all 0.3s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .modal-header {
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--spellingbee-hex-border);
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -513,26 +476,25 @@ body.dark-theme .icon-button:hover {
 
 .modal-header h2 {
     margin: 0;
-    color: var(--spellingbee-primary);
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-text);
 }
 
 .close {
-    font-size: 1.5rem;
-    color: var(--spellingbee-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-text);
     cursor: pointer;
-    transition: color 0.3s;
 }
 
 .close:hover {
-    color: var(--spellingbee-primary);
+    opacity: 0.7;
 }
 
 .modal-body {
-    padding: 20px;
-    color: var(--spellingbee-text);
-    font-family: 'Quicksand', sans-serif;
+    padding: 0 0 20px;
+    color: var(--primary-text);
     max-height: 70vh;
     overflow-y: auto;
 }
@@ -540,20 +502,22 @@ body.dark-theme .icon-button:hover {
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 16px;
     margin-bottom: 20px;
 }
 
 .stat-item {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     text-align: center;
-    padding: 15px;
-    background-color: var(--spellingbee-hex-bg);
-    border-radius: 8px;
 }
 
 .stat-value {
-    font-size: 1.8rem;
-    font-weight: bold;
+    font-size: 1.5rem;
+    font-weight: 700;
     color: var(--spellingbee-primary);
     font-family: 'Clear Sans', sans-serif;
 }
@@ -662,11 +626,11 @@ input:checked + .toggle-slider:before {
         font-size: 1.6rem;
     }
     
-    .header-content {
-        padding: 0 15px;
+    .game-header .page-header__inner {
+        padding: 0 var(--space-4);
     }
     
-    .game-header h1 {
+    .game-header .page-header__title {
         font-size: 1.5rem;
     }
     

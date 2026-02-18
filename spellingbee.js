@@ -37,8 +37,6 @@ let highContrast = localStorage.getItem('highContrast') === 'true';
 
 // Wait for DOM to be fully loaded then start the game
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing game');
-    
     // Initialize DOM elements
     messageDisplay = document.getElementById('messageDisplay');
     currentScoreElement = document.getElementById('current-score');
@@ -68,19 +66,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Setup modal buttons separately to ensure they work
 function setupModalButtons() {
-    console.log('Setting up modal buttons...');
-    
     const helpBtn = document.getElementById('helpBtn');
     const statsBtn = document.getElementById('statsBtn');
     const settingsBtn = document.getElementById('settingsBtn');
-    
-    console.log('Modal buttons:', { helpBtn: !!helpBtn, statsBtn: !!statsBtn, settingsBtn: !!settingsBtn });
     
     if (helpBtn) {
         helpBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Help button clicked via onclick');
             openModal('helpModal');
         };
     }
@@ -89,7 +82,6 @@ function setupModalButtons() {
         statsBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Stats button clicked via onclick');
             openModal('statsModal');
         };
     }
@@ -98,7 +90,6 @@ function setupModalButtons() {
         settingsBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Settings button clicked via onclick');
             openModal('settingsModal');
         };
     }
@@ -108,7 +99,6 @@ function setupModalButtons() {
         closeButton.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Close button clicked');
             closeAllModals();
         };
     });
@@ -121,26 +111,18 @@ function setupModalButtons() {
             }
         };
     });
-    
-    console.log('Modal buttons setup complete');
 }
 
 // Initialize the game
 async function initializeGame() {
-    console.log('Initializing game...');
-    
     try {
         await loadDictionary();
         generateLetters();
         findValidWords();
         setupGame();
         updateUI();
-        console.log('Game initialized successfully');
     } catch (error) {
         console.error('Error initializing game:', error);
-        
-        // Emergency fallback - ensure we have some letters
-        console.log('Using fallback letters');
         letters = ['a', 'e', 'i', 'n', 's', 't', 'r'];
         centerLetter = 't';
         setupGame();
@@ -150,23 +132,20 @@ async function initializeGame() {
 // Load dictionary
 async function loadDictionary() {
     try {
-        console.log("Loading dictionary...");
         const response = await fetch('dictionary.txt');
         if (response.ok) {
             const text = await response.text();
             dictionary = text.split('\n').map(word => word.trim().toLowerCase()).filter(word => word.length > 0);
-            console.log(`Loaded ${dictionary.length} words from dictionary`);
         } else {
             throw new Error('Failed to load dictionary');
         }
     } catch (error) {
         console.error('Error loading dictionary:', error);
         // Use a default dictionary with our letters
-        dictionary = ["test", "rent", "sent", "nest", "seat", "neat", "teen", "tear", "rate", 
-                     "rain", "train", "stain", "strain", "saint", "siren", "resin", 
-                     "inert", "steal", "stare", "raise", "arise", "astir", "east", 
+        dictionary = ["test", "rent", "sent", "nest", "seat", "neat", "teen", "tear", "rate",
+                     "rain", "train", "stain", "strain", "saint", "siren", "resin",
+                     "inert", "steal", "stare", "raise", "arise", "astir", "east",
                      "teas", "rise", "rest", "tins", "nets", "ties", "tire", "true", "arts", "rats"];
-        console.log('Using default dictionary with', dictionary.length, 'words');
     }
 }
 
@@ -223,7 +202,6 @@ function generateLetters() {
     }
 
     centerLetter = letters[3];
-    console.log("Generated letters:", letters, "Center letter:", centerLetter);
 }
 
 // Find all valid words that can be made from the letters
@@ -251,7 +229,6 @@ function findValidWords() {
     // Calculate total possible points
     totalPossiblePoints = calculateTotalPoints(allPossibleWords);
     
-    console.log(`Found ${allPossibleWords.length} valid words including ${pangrams.length} pangrams`);
 }
 
 // Calculate points for a list of words
@@ -285,7 +262,6 @@ function isPangram(word) {
 
 // Setup the game UI
 function setupGame() {
-    console.log('Setting up game with letters:', letters);
     
     if (!hexCells || hexCells.length === 0) {
         console.error('Hex cells not found!');
@@ -296,7 +272,6 @@ function setupGame() {
     hexCells.forEach((cell, index) => {
         if (index < letters.length) {
             cell.textContent = letters[index].toUpperCase();
-            console.log(`Setting cell ${index} to ${letters[index].toUpperCase()}`);
             
             // Remove existing classes
             cell.classList.remove('center', 'required');
@@ -330,7 +305,6 @@ function setupGame() {
 
 // Setup event listeners
 function setupEventListeners() {
-    console.log('Setting up event listeners...');
     
     // Button handlers
     const deleteBtn = document.getElementById('delete-btn');
@@ -339,15 +313,12 @@ function setupEventListeners() {
     
     if (deleteBtn) {
         deleteBtn.addEventListener('click', deleteLetter);
-        console.log('Delete button listener added');
     }
     if (shuffleBtn) {
         shuffleBtn.addEventListener('click', shuffleLetters);
-        console.log('Shuffle button listener added');
     }
     if (enterBtn) {
         enterBtn.addEventListener('click', submitWord);
-        console.log('Enter button listener added');
     }
     
     // Modal buttons
@@ -355,57 +326,35 @@ function setupEventListeners() {
     const statsBtn = document.getElementById('statsBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     
-    console.log('Modal buttons found:', {
-        helpBtn: !!helpBtn,
-        statsBtn: !!statsBtn,
-        settingsBtn: !!settingsBtn
-    });
-    
     if (helpBtn) {
         helpBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Help button clicked');
             openModal('helpModal');
         });
-        console.log('Help button listener added');
     }
     if (statsBtn) {
         statsBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Stats button clicked');
             openModal('statsModal');
         });
-        console.log('Stats button listener added');
     }
     if (settingsBtn) {
         settingsBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Settings button clicked');
             openModal('settingsModal');
         });
-        console.log('Settings button listener added');
     }
-    
-    // Close modal buttons
     document.querySelectorAll('.close').forEach(closeButton => {
         closeButton.addEventListener('click', (e) => {
             e.preventDefault();
-            console.log('Close button clicked');
             closeAllModals();
         });
     });
-    
-    // Settings toggles
     const darkThemeToggle = document.getElementById('darkThemeToggle');
     const highContrastToggle = document.getElementById('highContrastToggle');
-    
     if (darkThemeToggle) darkThemeToggle.addEventListener('change', toggleDarkMode);
     if (highContrastToggle) highContrastToggle.addEventListener('change', toggleHighContrast);
-    
-    // Keyboard listeners
     document.addEventListener('keydown', handleKeyPress);
-    
-    console.log('Event listeners setup complete');
 }
 
 // Handle keyboard input
@@ -457,7 +406,6 @@ function updateWordDisplay() {
 
 // Submit the current word
 function submitWord() {
-    console.log("Submitting word:", currentWord);
     
     if (currentWord.length < MINIMUM_WORD_LENGTH) {
         showMessage(`Words must be at least ${MINIMUM_WORD_LENGTH} letters long.`, 'error');
@@ -600,14 +548,11 @@ function endGame() {
 
 // Open a modal
 function openModal(modalId) {
-    console.log('Opening modal:', modalId);
     const modal = document.getElementById(modalId);
-    console.log('Modal element found:', !!modal);
     
     if (modal) {
         modal.style.display = 'block';
         document.body.classList.add('modal-open');
-        console.log('Modal opened successfully');
         
         // Ensure modal is visible and on top
         modal.style.zIndex = '9999';
@@ -619,7 +564,6 @@ function openModal(modalId) {
 
 // Close all modals
 function closeAllModals() {
-    console.log('Closing all modals');
     const modals = document.querySelectorAll('.modal');
     modals.forEach(modal => {
         modal.style.display = 'none';

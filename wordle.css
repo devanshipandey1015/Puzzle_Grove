@@ -1,17 +1,18 @@
 /* Wordle - Puzzle Grove Styles */
+@import url("src/styles/theme.css");
 
 :root {
-    /* Game Colors */
-    --wordle-bg: #ffffff;
-    --wordle-text: #1a1a1b;
-    --tile-border: #d3d6da;
+    /* Use global palette for page chrome (from index.css) */
+    --wordle-bg: var(--bg);
+    --wordle-text: var(--primary-text);
+    --tile-border: var(--border);
     --key-bg: #d3d6da;
     --key-text: #1a1a1b;
     --absent: #787c7e;
     --present: #c9b458;
     --correct: #6aaa64;
     --key-hover: #bbbec3;
-    --modal-bg: #ffffff;
+    --modal-bg: var(--card-bg);
 
     /* Game sizes */
     --tile-size: 62px;
@@ -57,16 +58,15 @@ body {
     margin-bottom: 20px;
 }
 
-.header-content {
+.game-header .page-header__inner {
     width: 95%;
     max-width: 550px;
     margin: 0 auto;
-    display: grid;
-    /* Using fixed width for side columns ensures equal space on both sides */
-    grid-template-columns: minmax(40px, 1fr) auto minmax(40px, 1fr);
-    align-items: center;
-    position: relative;
+    grid-template-columns: minmax(40px, auto) 1fr minmax(40px, auto);
 }
+.game-header .page-header__back { grid-column: 1; }
+.game-header .page-header__content { grid-column: 2; }
+.game-header .page-header__actions { grid-column: 3; }
 
 .back-button {
     color: var(--wordle-text);
@@ -86,7 +86,7 @@ body {
     background-color: var(--key-hover);
 }
 
-.game-header h1 {
+.game-header .page-header__title {
     font-size: 28px;
     font-weight: 700;
     margin: 0;
@@ -343,14 +343,16 @@ body {
 }
 
 .modal-content {
-    background-color: var(--modal-bg);
+    background: var(--card-bg);
     margin: 80px auto 0;
     width: 90%;
     max-width: 500px;
     border-radius: 12px;
-    box-shadow: 0 4px 23px 0 rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     overflow: hidden;
-    transition: transform 0.3s;
+    transition: transform 0.2s ease, opacity 0.2s ease;
     transform: translateY(20px);
     opacity: 0;
 }
@@ -361,8 +363,9 @@ body {
 }
 
 .modal-header {
-    padding: 16px;
-    border-bottom: 1px solid var(--tile-border);
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -381,13 +384,13 @@ body {
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 0 0 20px;
     color: var(--wordle-text);
 }
 
 .modal-footer {
-    padding: 12px 20px;
-    border-top: 1px solid var(--tile-border);
+    padding: 12px 0 0;
+    border-top: 1px solid var(--border);
     text-align: center;
     font-size: 14px;
     color: var(--wordle-text);
@@ -507,21 +510,21 @@ body {
 }
 
 .share-button, .play-again-button {
-    background-color: var(--correct);
+    background: var(--accent);
     color: white;
     border: none;
-    border-radius: 4px;
-    padding: 10px 20px;
-    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: background-color 0.2s;
+    transition: background 0.2s ease;
 }
 
 .share-button:hover, .play-again-button:hover {
-    background-color: #5b9157;
+    background: var(--accent-hover);
 }
 
 /* Settings modal */
@@ -627,13 +630,16 @@ input:checked + .slider:before {
 }
 
 .game-footer a {
-    color: var(--primary);
+    color: var(--accent);
     text-decoration: none;
     margin-left: 10px;
+    transition: color 0.2s ease;
 }
 
 .game-footer a:hover {
+    color: var(--accent-hover);
     text-decoration: underline;
+    text-underline-offset: 3px;
 }
 
 /* Wordle-specific background */
@@ -652,7 +658,7 @@ input:checked + .slider:before {
         --keyboard-width: 100%;
     }
 
-    .header-content {
+    .game-header .page-header__inner {
         width: 100%;
     }
 
@@ -676,7 +682,7 @@ input:checked + .slider:before {
 
 /* Responsive header adjustments */
 @media (max-width: 450px) {
-    .game-header h1 {
+    .game-header .page-header__title {
         font-size: 24px;
     }
     

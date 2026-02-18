@@ -1,18 +1,19 @@
 /* Word Strands - Puzzle Grove Styles */
+@import url("src/styles/theme.css");
 
 :root {
-    /* Game Colors */
-    --wordsearch-bg: #ffffff;
-    --wordsearch-text: #1a1a1b;
-    --tile-border: #d3d6da;
-    --tile-bg: #ffffff;
+    /* Use global palette for page chrome */
+    --wordsearch-bg: var(--bg);
+    --wordsearch-text: var(--primary-text);
+    --tile-border: var(--border);
+    --tile-bg: var(--card-bg);
     --selected-bg: #4ab7ff;
     --selected-text: #ffffff;
     --found-bg: #6aaa64;
     --found-text: #ffffff;
     --hint-bg: #f9cd5a;
     --hint-text: #1a1a1b;
-    --modal-bg: #ffffff;
+    --modal-bg: var(--card-bg);
     --progress-bar: #6aaa64;
     --current-word-bg: #f0f0f0;
     
@@ -61,15 +62,15 @@ body {
     margin-bottom: 20px;
 }
 
-.header-content {
+.game-header .page-header__inner {
     width: 95%;
     max-width: 550px;
     margin: 0 auto;
-    display: grid;
-    grid-template-columns: minmax(40px, 1fr) auto minmax(40px, 1fr);
-    align-items: center;
-    position: relative;
+    grid-template-columns: minmax(40px, auto) 1fr minmax(40px, auto);
 }
+.game-header .page-header__back { grid-column: 1; }
+.game-header .page-header__content { grid-column: 2; }
+.game-header .page-header__actions { grid-column: 3; }
 
 .back-button {
     color: var(--wordsearch-text);
@@ -89,12 +90,11 @@ body {
     background-color: var(--tile-border);
 }
 
-.game-header h1 {
+.game-header .page-header__title {
     font-size: 28px;
     font-weight: 700;
     margin: 0;
     text-align: center;
-    grid-column: 2;
     text-transform: uppercase;
     letter-spacing: 2px;
     min-width: max-content;
@@ -318,41 +318,8 @@ body {
     justify-content: center;
 }
 
-.control-button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 20px;
-    background-color: var(--tile-bg);
-    color: var(--wordsearch-text);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid var(--tile-border);
-}
-
-.control-button:hover {
-    background-color: var(--tile-border);
-}
-
-.control-button.primary-button {
-    background-color: var(--found-bg);
-    color: white;
-    border: none;
-}
-
-.control-button.primary-button:hover {
-    opacity: 0.9;
-}
-
-.control-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.control-button i {
-    margin-right: 5px;
-}
+/* .control-button from components.css */
+.control-button i { margin-right: var(--space-1); }
 
 /* Modal styling */
 .modal {
@@ -373,13 +340,16 @@ body {
 }
 
 .modal-content {
-    background-color: var(--modal-bg);
-    border-radius: 10px;
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     max-width: 90%;
     width: 450px;
     max-height: 90vh;
     overflow-y: auto;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
     opacity: 0;
     transform: translateY(20px);
 }
@@ -390,8 +360,9 @@ body {
 }
 
 .modal-header {
-    padding: 15px;
-    border-bottom: 1px solid var(--tile-border);
+    padding: 0 0 12px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -409,18 +380,23 @@ body {
 }
 
 .modal-body {
-    padding: 20px;
+    padding: 0 0 20px;
 }
 
-/* Stats styling */
+/* Stats - card UI */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 16px;
     margin-bottom: 20px;
 }
 
 .stat-item {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
     text-align: center;
 }
 
@@ -490,7 +466,7 @@ body {
         --grid-gap: 3px;
     }
     
-    .game-header h1 {
+    .game-header .page-header__title {
         font-size: 24px;
     }
     
