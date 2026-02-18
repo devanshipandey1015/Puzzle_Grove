@@ -148,29 +148,36 @@
 .synonym-container {
     width: 100%;
     max-width: 800px;
+    margin-top: 24px;
 }
 
 .words-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-    justify-content: center;
-    min-height: 400px;
-    align-content: start;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 18px;
+    column-gap: 20px;
+    justify-items: center;
+    align-items: center;
+    min-height: 200px;
 }
 
 .word-card {
     background: rgba(255, 255, 255, 0.9);
     border: 3px solid transparent;
     border-radius: 15px;
-    padding: 20px 15px;
+    padding: 24px 18px;
     text-align: center;
     cursor: pointer;
     transition: all 0.3s ease;
     min-height: 80px;
+    min-width: 140px;
+    width: 100%;
+    max-width: 280px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     position: relative;
     backdrop-filter: blur(10px);
 }
@@ -193,6 +200,19 @@
     border-color: #4CAF50;
     cursor: not-allowed;
     transform: scale(0.95);
+}
+
+.word-card.wrong {
+    border-color: #dc3545;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
 }
 
 .word-card.hint-match {
@@ -588,13 +608,15 @@
     }
     
     .words-grid {
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(2, 1fr);
+        row-gap: 16px;
+        column-gap: 16px;
     }
     
     .word-card {
         padding: 15px 10px;
         min-height: 70px;
+        min-width: 120px;
     }
     
     .word-text {
@@ -644,12 +666,14 @@
     
     .words-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        row-gap: 14px;
+        column-gap: 14px;
     }
     
     .word-card {
         padding: 12px 8px;
         min-height: 60px;
+        min-width: 100px;
     }
     
     .word-text {

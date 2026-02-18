@@ -342,7 +342,7 @@ body.dark-theme .hangman-word-card {
     display: flex;
     gap: 8px;
     justify-content: center;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     min-height: 72px;
     align-items: center;
 }

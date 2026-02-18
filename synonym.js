@@ -1,122 +1,112 @@
-// Synonym Match Game Implementation
+// Synonym Match Game Implementation – logic only; UI layout/styling unchanged.
+
+// In-code dataset: synonym pairs grouped by level. Each round uses N pairs (N = matches per round, e.g. 5).
+const LEVELS = {
+    1: [
+        ['happy', 'joyful'],
+        ['fast', 'quick'],
+        ['big', 'large'],
+        ['small', 'tiny'],
+        ['smart', 'clever'],
+        ['sad', 'unhappy'],
+        ['angry', 'mad'],
+        ['beautiful', 'pretty'],
+        ['brave', 'courageous'],
+        ['calm', 'peaceful']
+    ],
+    2: [
+        ['difficult', 'hard'],
+        ['easy', 'simple'],
+        ['begin', 'start'],
+        ['end', 'finish'],
+        ['help', 'assist'],
+        ['buy', 'purchase'],
+        ['find', 'discover'],
+        ['make', 'create'],
+        ['say', 'tell'],
+        ['think', 'consider'],
+        ['want', 'desire'],
+        ['use', 'utilize']
+    ],
+    3: [
+        ['ancient', 'old'],
+        ['correct', 'right'],
+        ['dangerous', 'risky'],
+        ['enormous', 'huge'],
+        ['famous', 'well-known'],
+        ['generous', 'kind'],
+        ['important', 'significant'],
+        ['intelligent', 'smart'],
+        ['magnificent', 'splendid'],
+        ['necessary', 'required'],
+        ['ordinary', 'common'],
+        ['powerful', 'strong']
+    ],
+    4: [
+        ['abundant', 'plentiful'],
+        ['benevolent', 'kind'],
+        ['meticulous', 'careful'],
+        ['eloquent', 'articulate'],
+        ['serene', 'tranquil'],
+        ['tenacious', 'persistent'],
+        ['vibrant', 'lively'],
+        ['weary', 'tired'],
+        ['zealous', 'eager'],
+        ['cautious', 'careful'],
+        ['diligent', 'hardworking'],
+        ['eager', 'enthusiastic']
+    ],
+    5: [
+        ['ambiguous', 'unclear'],
+        ['comprehensive', 'complete'],
+        ['conspicuous', 'obvious'],
+        ['exquisite', 'beautiful'],
+        ['formidable', 'impressive'],
+        ['gregarious', 'sociable'],
+        ['incessant', 'constant'],
+        ['juvenile', 'young'],
+        ['lucrative', 'profitable'],
+        ['notorious', 'famous'],
+        ['obsolete', 'outdated'],
+        ['pragmatic', 'practical']
+    ]
+};
+
+// Default pairs per round (synced with "Matches Left" in UI).
+const PAIRS_PER_ROUND = 5;
+
+// Max level; beyond this we reuse level 5 pool.
+const MAX_LEVEL = 5;
+
 class SynonymGame {
     constructor() {
-        this.synonymSets = [
-            // Easy level
-            [
-                { word: 'Happy', definition: 'Feeling joy or pleasure' },
-                { word: 'Glad', definition: 'Pleased and satisfied' },
-                { word: 'Joyful', definition: 'Full of happiness' }
-            ],
-            [
-                { word: 'Big', definition: 'Large in size' },
-                { word: 'Large', definition: 'Of great size or extent' },
-                { word: 'Huge', definition: 'Extremely large' }
-            ],
-            [
-                { word: 'Fast', definition: 'Moving at high speed' },
-                { word: 'Quick', definition: 'Done with speed' },
-                { word: 'Rapid', definition: 'Happening in a short time' }
-            ],
-            [
-                { word: 'Smart', definition: 'Having intelligence' },
-                { word: 'Clever', definition: 'Quick to understand' },
-                { word: 'Bright', definition: 'Intelligent and quick-witted' }
-            ],
-            [
-                { word: 'Small', definition: 'Little in size' },
-                { word: 'Tiny', definition: 'Very small' },
-                { word: 'Mini', definition: 'Miniature or compact' }
-            ],
-
-            // Medium level
-            [
-                { word: 'Beautiful', definition: 'Pleasing to look at' },
-                { word: 'Gorgeous', definition: 'Very beautiful' },
-                { word: 'Stunning', definition: 'Extremely impressive' }
-            ],
-            [
-                { word: 'Difficult', definition: 'Hard to do or understand' },
-                { word: 'Challenging', definition: 'Testing one\'s abilities' },
-                { word: 'Tough', definition: 'Demanding effort' }
-            ],
-            [
-                { word: 'Ancient', definition: 'Very old' },
-                { word: 'Old', definition: 'Having lived for a long time' },
-                { word: 'Antique', definition: 'From an earlier period' }
-            ],
-            [
-                { word: 'Brave', definition: 'Ready to face danger' },
-                { word: 'Courageous', definition: 'Not afraid of danger' },
-                { word: 'Bold', definition: 'Confident and fearless' }
-            ],
-            [
-                { word: 'Angry', definition: 'Feeling strong displeasure' },
-                { word: 'Mad', definition: 'Very annoyed' },
-                { word: 'Furious', definition: 'Extremely angry' }
-            ],
-
-            // Hard level
-            [
-                { word: 'Abundant', definition: 'Existing in large quantities' },
-                { word: 'Plentiful', definition: 'Available in large amounts' },
-                { word: 'Copious', definition: 'Large in quantity or number' }
-            ],
-            [
-                { word: 'Benevolent', definition: 'Well-meaning and kindly' },
-                { word: 'Generous', definition: 'Willing to give more than necessary' },
-                { word: 'Charitable', definition: 'Showing kindness and concern' }
-            ],
-            [
-                { word: 'Meticulous', definition: 'Showing careful attention to detail' },
-                { word: 'Precise', definition: 'Exact and accurate' },
-                { word: 'Thorough', definition: 'Complete and comprehensive' }
-            ],
-            [
-                { word: 'Eloquent', definition: 'Fluent and persuasive in speaking' },
-                { word: 'Articulate', definition: 'Able to express ideas clearly' },
-                { word: 'Fluent', definition: 'Able to speak smoothly and easily' }
-            ],
-            [
-                { word: 'Serene', definition: 'Calm and peaceful' },
-                { word: 'Tranquil', definition: 'Free from disturbance' },
-                { word: 'Peaceful', definition: 'Not involving conflict' }
-            ],
-            [
-                { word: 'Magnificent', definition: 'Extremely beautiful and impressive' },
-                { word: 'Splendid', definition: 'Excellent and impressive' },
-                { word: 'Majestic', definition: 'Having impressive beauty or dignity' }
-            ],
-            [
-                { word: 'Tenacious', definition: 'Holding firmly to something' },
-                { word: 'Persistent', definition: 'Continuing firmly despite difficulties' },
-                { word: 'Determined', definition: 'Having made a firm decision' }
-            ]
-        ];
-
         this.currentLevel = 1;
         this.score = 0;
         this.timeLeft = 60;
         this.gameTimer = null;
-        this.currentSets = [];
-        this.selectedCards = [];
+        this.pairsThisRound = [];       // array of [word, synonym]
+        this.selectedLeft = null;
+        this.selectedRight = null;
         this.matchesFound = 0;
-        this.totalMatches = 0;
+        this.totalMatches = PAIRS_PER_ROUND;
         this.isPaused = false;
         this.isGameOver = false;
-        
-        // Settings
+        this.isProcessing = false;      // blocks input during wrong feedback
+        this.hintsUsed = 0;
+
         this.difficulty = 'medium';
         this.gameMode = 'timed';
         this.showDefinitions = true;
         this.darkTheme = false;
         this.soundEffects = true;
 
-        // Statistics
         this.stats = {
             bestScore: 0,
             totalMatches: 0,
-            gamesPlayed: 0
+            gamesPlayed: 0,
+            gamesWon: 0,
+            currentStreak: 0,
+            maxStreak: 0
         };
 
         this.init();
@@ -130,26 +120,28 @@ class SynonymGame {
     }
 
     loadSettings() {
-        const savedSettings = localStorage.getItem('synonymSettings');
-        if (savedSettings) {
-            const settings = JSON.parse(savedSettings);
-            this.difficulty = settings.difficulty || 'medium';
-            this.gameMode = settings.gameMode || 'timed';
-            this.showDefinitions = settings.showDefinitions !== undefined ? settings.showDefinitions : true;
-            this.darkTheme = settings.darkTheme || false;
-            this.soundEffects = settings.soundEffects !== undefined ? settings.soundEffects : true;
-            
-            // Apply settings to UI
-            document.getElementById('difficultySelect').value = this.difficulty;
-            document.getElementById('gameModeSelect').value = this.gameMode;
-            document.getElementById('showDefinitionsToggle').checked = this.showDefinitions;
-            document.getElementById('darkThemeToggle').checked = this.darkTheme;
-            document.getElementById('soundToggle').checked = this.soundEffects;
-            
-            if (this.darkTheme) {
-                document.body.classList.add('dark-theme');
+        try {
+            const savedSettings = localStorage.getItem('synonymSettings');
+            if (savedSettings) {
+                const settings = JSON.parse(savedSettings);
+                this.difficulty = settings.difficulty || 'medium';
+                this.gameMode = settings.gameMode || 'timed';
+                this.showDefinitions = settings.showDefinitions !== false;
+                this.darkTheme = settings.darkTheme || false;
+                this.soundEffects = settings.soundEffects !== false;
             }
-        }
+        } catch (e) {}
+        const difficultySelect = document.getElementById('difficultySelect');
+        const gameModeSelect = document.getElementById('gameModeSelect');
+        const showDef = document.getElementById('showDefinitionsToggle');
+        const darkThemeToggle = document.getElementById('darkThemeToggle');
+        const soundToggle = document.getElementById('soundToggle');
+        if (difficultySelect) difficultySelect.value = this.difficulty;
+        if (gameModeSelect) gameModeSelect.value = this.gameMode;
+        if (showDef) showDef.checked = this.showDefinitions;
+        if (darkThemeToggle) darkThemeToggle.checked = this.darkTheme;
+        if (soundToggle) soundToggle.checked = this.soundEffects;
+        if (this.darkTheme) document.body.classList.add('dark-theme');
     }
 
     saveSettings() {
@@ -160,50 +152,39 @@ class SynonymGame {
             darkTheme: this.darkTheme,
             soundEffects: this.soundEffects
         };
-        localStorage.setItem('synonymSettings', JSON.stringify(settings));
+        try { localStorage.setItem('synonymSettings', JSON.stringify(settings)); } catch (e) {}
     }
 
     async loadStats() {
         try {
-            // Check if database manager is available
-            if (typeof window.dbManager === 'undefined') {
-                console.log('Database manager not available, using default stats');
-                return;
-            }
-            
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            if (typeof window.dbManager === 'undefined') return;
+            let currentUser = null;
+            try {
+                const u = localStorage.getItem('puzzleGroveUser');
+                if (u) currentUser = JSON.parse(u);
+            } catch (e) {}
             if (currentUser && currentUser.username) {
-                // Load stats from database
                 const userStats = await window.dbManager.getUserStats(currentUser.username);
                 if (userStats && userStats.gameStats && userStats.gameStats.synonym) {
-                    const synonymStats = userStats.gameStats.synonym;
-                    this.stats = {
-                        gamesPlayed: synonymStats.gamesPlayed || 0,
-                        gamesWon: synonymStats.gamesWon || 0,
-                        currentStreak: synonymStats.currentStreak || 0,
-                        maxStreak: synonymStats.maxStreak || 0
-                    };
+                    const s = userStats.gameStats.synonym;
+                    this.stats.gamesPlayed = s.gamesPlayed || 0;
+                    this.stats.gamesWon = s.gamesWon || 0;
+                    this.stats.currentStreak = s.currentStreak || 0;
+                    this.stats.maxStreak = s.maxStreak || 0;
                 }
             }
-        } catch (error) {
-            console.error('Error loading game state from database:', error);
-            // Continue with default stats if database fails
-        }
+        } catch (e) {}
     }
 
     async saveStats() {
         try {
-            // Check if database manager is available
-            if (typeof window.dbManager === 'undefined') {
-                console.log('Database manager not available, skipping save');
-                return;
-            }
-            
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            if (typeof window.dbManager === 'undefined') return;
+            let currentUser = null;
+            try {
+                const u = localStorage.getItem('puzzleGroveUser');
+                if (u) currentUser = JSON.parse(u);
+            } catch (e) {}
             if (currentUser && currentUser.username) {
-                // Save stats to database
                 await window.dbManager.updateUserStats(currentUser.username, 'synonym', {
                     gamesPlayed: this.stats.gamesPlayed,
                     gamesWon: this.stats.gamesWon,
@@ -211,267 +192,238 @@ class SynonymGame {
                     maxStreak: this.stats.maxStreak
                 });
             }
-        } catch (error) {
-            console.error('Error saving game state to database:', error);
-            // Continue without saving if database fails
-        }
+        } catch (e) {}
     }
 
     setupEventListeners() {
-        // Settings modal
         const settingsBtn = document.getElementById('settingsBtn');
         const settingsModal = document.getElementById('settingsModal');
         const closeBtns = document.querySelectorAll('.close');
-
-        settingsBtn.addEventListener('click', () => this.openModal('settingsModal'));
-        
+        if (settingsBtn) settingsBtn.addEventListener('click', () => this.openModal('settingsModal'));
         closeBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
-                this.closeModal(e.target.closest('.modal').id);
+                const modal = e.target.closest('.modal');
+                if (modal) this.closeModal(modal.id);
             });
         });
 
-        // Settings controls
-        document.getElementById('difficultySelect').addEventListener('change', (e) => {
-            this.difficulty = e.target.value;
-            this.saveSettings();
-        });
+        const difficultySelect = document.getElementById('difficultySelect');
+        const gameModeSelect = document.getElementById('gameModeSelect');
+        const showDef = document.getElementById('showDefinitionsToggle');
+        const darkThemeToggle = document.getElementById('darkThemeToggle');
+        const soundToggle = document.getElementById('soundToggle');
+        if (difficultySelect) difficultySelect.addEventListener('change', (e) => { this.difficulty = e.target.value; this.saveSettings(); });
+        if (gameModeSelect) gameModeSelect.addEventListener('change', (e) => { this.gameMode = e.target.value; this.saveSettings(); this.updateTimeForMode(); });
+        if (showDef) showDef.addEventListener('change', (e) => { this.showDefinitions = e.target.checked; this.saveSettings(); this.updateWordCardsDefinitions(); });
+        if (darkThemeToggle) darkThemeToggle.addEventListener('change', (e) => { this.darkTheme = e.target.checked; this.saveSettings(); document.body.classList.toggle('dark-theme', this.darkTheme); });
+        if (soundToggle) soundToggle.addEventListener('change', (e) => { this.soundEffects = e.target.checked; this.saveSettings(); });
 
-        document.getElementById('gameModeSelect').addEventListener('change', (e) => {
-            this.gameMode = e.target.value;
-            this.saveSettings();
-            this.updateTimeForMode();
-        });
+        const newGameBtn = document.getElementById('newGameBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const skipBtn = document.getElementById('skipBtn');
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+        if (newGameBtn) newGameBtn.addEventListener('click', () => this.resetCurrentLevel());
+        if (hintBtn) hintBtn.addEventListener('click', () => this.openModal('hintModal'));
+        if (pauseBtn) pauseBtn.addEventListener('click', () => this.togglePause());
+        if (skipBtn) skipBtn.addEventListener('click', () => this.skipLevel());
+        if (nextLevelBtn) nextLevelBtn.addEventListener('click', () => this.nextLevel());
 
-        document.getElementById('showDefinitionsToggle').addEventListener('change', (e) => {
-            this.showDefinitions = e.target.checked;
-            this.saveSettings();
-            this.updateWordCardsDefinitions();
-        });
+        const showMatchBtn = document.getElementById('showMatchBtn');
+        const resumeBtn = document.getElementById('resumeBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        if (showMatchBtn) showMatchBtn.addEventListener('click', () => this.showHint());
+        if (resumeBtn) resumeBtn.addEventListener('click', () => this.togglePause());
+        if (restartBtn) restartBtn.addEventListener('click', () => { this.closeModal('pauseModal'); this.resetCurrentLevel(); });
+        if (continueBtn) continueBtn.addEventListener('click', () => { this.closeModal('levelCompleteModal'); this.nextLevel(); });
+        if (playAgainBtn) playAgainBtn.addEventListener('click', () => { this.closeModal('gameOverModal'); this.startNewGame(); });
 
-        document.getElementById('darkThemeToggle').addEventListener('change', (e) => {
-            this.darkTheme = e.target.checked;
-            this.saveSettings();
-            document.body.classList.toggle('dark-theme', this.darkTheme);
-        });
+        const shareScoreBtn = document.getElementById('shareScoreBtn');
+        const shareResultBtn = document.getElementById('shareResultBtn');
+        if (shareScoreBtn) shareScoreBtn.addEventListener('click', () => this.shareScore());
+        if (shareResultBtn) shareResultBtn.addEventListener('click', () => this.shareResult());
 
-        document.getElementById('soundToggle').addEventListener('change', (e) => {
-            this.soundEffects = e.target.checked;
-            this.saveSettings();
-        });
-
-        // Game controls
-        document.getElementById('newGameBtn').addEventListener('click', () => this.startNewGame());
-        document.getElementById('hintBtn').addEventListener('click', () => this.openModal('hintModal'));
-        document.getElementById('pauseBtn').addEventListener('click', () => this.togglePause());
-        document.getElementById('skipBtn').addEventListener('click', () => this.skipLevel());
-        document.getElementById('nextLevelBtn').addEventListener('click', () => this.nextLevel());
-
-        // Modal controls
-        document.getElementById('showMatchBtn').addEventListener('click', () => this.showHint());
-        document.getElementById('resumeBtn').addEventListener('click', () => this.togglePause());
-        document.getElementById('restartBtn').addEventListener('click', () => this.restartLevel());
-        document.getElementById('continueBtn').addEventListener('click', () => {
-            this.closeModal('levelCompleteModal');
-            this.nextLevel();
-        });
-        document.getElementById('playAgainBtn').addEventListener('click', () => {
-            this.closeModal('gameOverModal');
-            this.startNewGame();
-        });
-
-        // Share buttons
-        document.getElementById('shareScoreBtn').addEventListener('click', () => this.shareScore());
-        document.getElementById('shareResultBtn').addEventListener('click', () => this.shareResult());
-
-        // Click outside modal to close
         window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                this.closeModal(e.target.id);
-            }
+            if (e.target.classList.contains('modal')) this.closeModal(e.target.id);
         });
     }
 
-    startNewGame() {
+    // Start fresh game from level 1.
+    async startNewGame() {
         this.currentLevel = 1;
         this.score = 0;
         this.isGameOver = false;
         this.isPaused = false;
-        this.stats.gamesPlayed++;
+        this.isProcessing = false;
+        this.stats.gamesPlayed = (this.stats.gamesPlayed || 0) + 1;
         await this.saveStats();
-        
         this.updateTimeForMode();
         this.setupLevel();
         this.closeModal('gameOverModal');
+        this.closeModal('levelCompleteModal');
         this.updateUI();
         this.startTimer();
-        
-        this.showMessage('Game started! Find matching synonyms!', 'success');
+        this.showMessage('Game started! Match words with their synonyms.', 'success');
+    }
+
+    // Restart current level with new random set (Reset icon).
+    resetCurrentLevel() {
+        if (this.isGameOver) {
+            this.startNewGame();
+            return;
+        }
+        this.stopTimer();
+        this.isProcessing = false;
+        this.selectedLeft = null;
+        this.selectedRight = null;
+        this.setupLevel();
+        this.updateTimeForMode();
+        this.startTimer();
+        this.updateUI();
+        this.showMessage('Level restarted with new words.', 'info');
+    }
+
+    getPoolForLevel() {
+        const level = Math.min(this.currentLevel, MAX_LEVEL);
+        const pool = LEVELS[level] || LEVELS[1];
+        return Array.isArray(pool) ? [...pool] : [];
     }
 
     setupLevel() {
-        // Select synonym sets based on difficulty and level
-        let availableSets = this.getSetsForDifficulty();
-        
-        // Select 5 random sets for this level (3 words each = 15 words total, need 2 matches per set)
-        this.currentSets = this.shuffleArray(availableSets).slice(0, 5);
-        this.totalMatches = this.currentSets.length;
+        const pool = this.getPoolForLevel();
+        const n = Math.min(PAIRS_PER_ROUND, pool.length);
+        const shuffled = this.shuffleArray(pool);
+        this.pairsThisRound = shuffled.slice(0, n);
+        this.totalMatches = this.pairsThisRound.length;
         this.matchesFound = 0;
-        this.selectedCards = [];
-        
+        this.selectedLeft = null;
+        this.selectedRight = null;
         this.generateWordCards();
         this.updateUI();
     }
 
-    getSetsForDifficulty() {
-        let sets = [...this.synonymSets];
-        
-        switch (this.difficulty) {
-            case 'easy':
-                return sets.slice(0, 5);
-            case 'medium':
-                return sets.slice(0, 10);
-            case 'hard':
-                return sets;
-        }
-        
-        return sets;
-    }
-
     generateWordCards() {
         const wordsGrid = document.getElementById('wordsGrid');
+        if (!wordsGrid) return;
         wordsGrid.innerHTML = '';
-        
-        // Create array of all words from current sets
-        let allWords = [];
-        this.currentSets.forEach((set, setIndex) => {
-            set.forEach((wordObj, wordIndex) => {
-                allWords.push({
-                    ...wordObj,
-                    setIndex: setIndex,
-                    wordIndex: wordIndex
-                });
-            });
-        });
-        
-        // Shuffle the words
-        allWords = this.shuffleArray(allWords);
-        
-        // Create word cards
-        allWords.forEach((wordObj, index) => {
-            const card = document.createElement('div');
-            card.className = 'word-card';
-            card.dataset.setIndex = wordObj.setIndex;
-            card.dataset.wordIndex = wordObj.wordIndex;
-            card.dataset.index = index;
-            
-            if (this.showDefinitions) {
-                card.classList.add('show-definition');
-            }
-            
-            card.innerHTML = `
-                <div class="word-text">${wordObj.word}</div>
-                <div class="word-definition">${wordObj.definition}</div>
-                <div class="match-indicator">✓</div>
-            `;
-            
-            card.addEventListener('click', () => this.selectCard(card));
-            wordsGrid.appendChild(card);
-        });
+
+        const leftWords = this.pairsThisRound.map((p, i) => ({ word: p[0], pairIndex: i }));
+        const rightWords = this.pairsThisRound.map((p, i) => ({ word: p[1], pairIndex: i }));
+        const rightShuffled = this.shuffleArray(rightWords);
+
+        for (let i = 0; i < leftWords.length; i++) {
+            wordsGrid.appendChild(this.createCard(leftWords[i].word, leftWords[i].pairIndex, 'left'));
+            wordsGrid.appendChild(this.createCard(rightShuffled[i].word, rightShuffled[i].pairIndex, 'right'));
+        }
+    }
+
+    createCard(word, pairIndex, side) {
+        const card = document.createElement('div');
+        card.className = 'word-card';
+        if (this.showDefinitions) card.classList.add('show-definition');
+        card.dataset.pairIndex = String(pairIndex);
+        card.dataset.side = side;
+        card.innerHTML = `
+            <div class="word-text">${word}</div>
+            <div class="word-definition"></div>
+            <div class="match-indicator">✓</div>
+        `;
+        card.addEventListener('click', () => this.selectCard(card));
+        return card;
     }
 
     selectCard(card) {
-        if (this.isPaused || this.isGameOver || card.classList.contains('matched')) {
-            return;
+        if (this.isPaused || this.isGameOver || this.isProcessing) return;
+        if (card.classList.contains('matched')) return;
+
+        const side = card.dataset.side;
+        if (side === 'left') {
+            if (this.selectedLeft === card) {
+                card.classList.remove('selected');
+                this.selectedLeft = null;
+            } else {
+                if (this.selectedLeft) this.selectedLeft.classList.remove('selected');
+                this.selectedLeft = card;
+                card.classList.add('selected');
+            }
+            if (this.selectedRight) {
+                this.selectedRight.classList.remove('selected');
+                this.selectedRight = null;
+            }
+        } else {
+            if (this.selectedRight === card) {
+                card.classList.remove('selected');
+                this.selectedRight = null;
+            } else {
+                if (this.selectedRight) this.selectedRight.classList.remove('selected');
+                this.selectedRight = card;
+                card.classList.add('selected');
+            }
         }
-        
-        if (card.classList.contains('selected')) {
-            // Deselect card
-            card.classList.remove('selected');
-            this.selectedCards = this.selectedCards.filter(c => c !== card);
-            return;
-        }
-        
-        // Select card
-        card.classList.add('selected');
-        this.selectedCards.push(card);
-        
-        this.playSound('select');
-        
-        // Check if we have 3 cards selected (full set)
-        if (this.selectedCards.length === 3) {
+
+        if (this.selectedLeft && this.selectedRight) {
             this.checkMatch();
         }
     }
 
     checkMatch() {
-        const setIndexes = this.selectedCards.map(card => parseInt(card.dataset.setIndex));
-        const isMatch = setIndexes.every(index => index === setIndexes[0]);
-        
-        if (isMatch) {
-            // It's a match!
-            this.selectedCards.forEach(card => {
-                card.classList.remove('selected');
-                card.classList.add('matched', 'match-animation');
-            });
-            
+        const leftIndex = parseInt(this.selectedLeft.dataset.pairIndex, 10);
+        const rightIndex = parseInt(this.selectedRight.dataset.pairIndex, 10);
+        if (leftIndex === rightIndex) {
+            this.selectedLeft.classList.remove('selected');
+            this.selectedRight.classList.remove('selected');
+            this.selectedLeft.classList.add('matched', 'match-animation');
+            this.selectedRight.classList.add('matched', 'match-animation');
             this.matchesFound++;
-            this.score += this.calculateMatchScore();
+            const baseScore = 100;
+            const levelMult = this.currentLevel;
+            const timeBonus = this.gameMode === 'relaxed' ? 0 : Math.max(0, this.timeLeft * 2);
+            this.score += Math.round(baseScore * levelMult + timeBonus);
+            this.selectedLeft = null;
+            this.selectedRight = null;
             this.playSound('match');
-            
-            this.selectedCards = [];
             this.updateUI();
-            
-            // Check if level is complete
             if (this.matchesFound >= this.totalMatches) {
                 this.completeLevel();
             }
         } else {
-            // Not a match
+            this.isProcessing = true;
             this.playSound('wrong');
             this.showMessage('Not a match! Try again.', 'error');
-            
-            // Deselect after a brief moment
+            this.selectedLeft.classList.add('wrong');
+            this.selectedRight.classList.add('wrong');
             setTimeout(() => {
-                this.selectedCards.forEach(card => {
-                    card.classList.remove('selected');
-                });
-                this.selectedCards = [];
-            }, 1000);
+                this.selectedLeft.classList.remove('selected', 'wrong');
+                this.selectedRight.classList.remove('selected', 'wrong');
+                this.selectedLeft = null;
+                this.selectedRight = null;
+                this.isProcessing = false;
+            }, 600);
         }
-    }
-
-    calculateMatchScore() {
-        let baseScore = 100;
-        let levelMultiplier = this.currentLevel;
-        let timeBonus = Math.max(0, this.timeLeft * 2);
-        
-        if (this.difficulty === 'hard') baseScore += 50;
-        if (this.difficulty === 'easy') baseScore -= 25;
-        
-        return Math.round(baseScore * levelMultiplier + timeBonus);
     }
 
     completeLevel() {
         this.stopTimer();
-        
-        const levelScore = this.score;
-        const timeBonus = Math.max(0, this.timeLeft * 5);
+        this.stats.gamesWon = (this.stats.gamesWon || 0) + 1;
+        this.stats.currentStreak = (this.stats.currentStreak || 0) + 1;
+        if (this.stats.currentStreak > (this.stats.maxStreak || 0)) this.stats.maxStreak = this.stats.currentStreak;
+        const timeBonus = this.gameMode === 'relaxed' ? 0 : Math.max(0, this.timeLeft * 5);
         this.score += timeBonus;
-        
         this.playSound('levelComplete');
-        
-        // Update level complete modal
-        document.getElementById('completionMessage').textContent = 
-            this.currentLevel === 1 ? 'Great start!' : 
-            this.currentLevel < 5 ? 'Excellent work!' : 
-            'Amazing job!';
-        document.getElementById('completionDetails').textContent = 
-            `You completed Level ${this.currentLevel}!`;
-        document.getElementById('timeBonus').textContent = `+${timeBonus}`;
-        document.getElementById('levelScore').textContent = levelScore;
-        document.getElementById('totalScore').textContent = this.score;
-        
+
+        const completionMessage = document.getElementById('completionMessage');
+        const completionDetails = document.getElementById('completionDetails');
+        const timeBonusEl = document.getElementById('timeBonus');
+        const levelScoreEl = document.getElementById('levelScore');
+        const totalScoreEl = document.getElementById('totalScore');
+        if (completionMessage) completionMessage.textContent = this.currentLevel === 1 ? 'Great start!' : this.currentLevel < 5 ? 'Excellent work!' : 'Amazing job!';
+        if (completionDetails) completionDetails.textContent = `You completed Level ${this.currentLevel}!`;
+        if (timeBonusEl) timeBonusEl.textContent = `+${timeBonus}`;
+        if (levelScoreEl) levelScoreEl.textContent = this.score - timeBonus;
+        if (totalScoreEl) totalScoreEl.textContent = this.score;
+
         this.openModal('levelCompleteModal');
     }
 
@@ -480,92 +432,62 @@ class SynonymGame {
         this.updateTimeForMode();
         this.setupLevel();
         this.startTimer();
-        
+        this.updateUI();
         this.showMessage(`Level ${this.currentLevel} started!`, 'info');
     }
 
     skipLevel() {
         if (confirm('Skip this level? You won\'t get points for remaining matches.')) {
-            this.score = Math.max(0, this.score - 200); // Penalty for skipping
+            this.score = Math.max(0, this.score - 200);
             this.nextLevel();
         }
     }
 
-    restartLevel() {
-        this.closeModal('pauseModal');
-        this.setupLevel();
-        this.updateTimeForMode();
-        this.startTimer();
-    }
-
     showHint() {
-        if (this.score < 50) {
-            this.showMessage('Not enough points for hint! (Need 50 points)', 'error');
-            return;
-        }
-        
-        this.score -= 50;
-        
-        // Find an unmatched set and highlight it briefly
-        const unmatchedSets = this.currentSets.map((set, index) => {
-            const setCards = document.querySelectorAll(`[data-set-index="${index}"]`);
-            const isMatched = Array.from(setCards).every(card => card.classList.contains('matched'));
-            return isMatched ? null : index;
-        }).filter(index => index !== null);
-        
-        if (unmatchedSets.length > 0) {
-            const hintSetIndex = unmatchedSets[Math.floor(Math.random() * unmatchedSets.length)];
-            const hintCards = document.querySelectorAll(`[data-set-index="${hintSetIndex}"]`);
-            
-            hintCards.forEach(card => {
-                card.classList.add('hint-match');
-            });
-            
-            setTimeout(() => {
-                hintCards.forEach(card => {
-                    card.classList.remove('hint-match');
-                });
-            }, 3000);
-            
-            this.playSound('hint');
-            this.showMessage('These words are synonyms!', 'info');
-        }
-        
+        const wordsGrid = document.getElementById('wordsGrid');
+        if (!wordsGrid) { this.closeModal('hintModal'); return; }
+        const leftCards = wordsGrid.querySelectorAll('.word-card[data-side="left"]:not(.matched)');
+        const rightCards = wordsGrid.querySelectorAll('.word-card[data-side="right"]:not(.matched)');
+        if (leftCards.length === 0 || rightCards.length === 0) { this.closeModal('hintModal'); return; }
+
+        const pairIndex = parseInt(leftCards[0].dataset.pairIndex, 10);
+        const rightMatch = wordsGrid.querySelector(`.word-card[data-side="right"][data-pair-index="${pairIndex}"]:not(.matched)`);
+        if (!rightMatch) { this.closeModal('hintModal'); return; }
+
+        this.hintsUsed++;
+        leftCards[0].classList.add('hint-match');
+        rightMatch.classList.add('hint-match');
+        setTimeout(() => {
+            leftCards[0].classList.remove('hint-match');
+            rightMatch.classList.remove('hint-match');
+        }, 3000);
+        this.playSound('hint');
+        this.showMessage('One correct pair highlighted!', 'info');
         this.closeModal('hintModal');
-        this.updateUI();
     }
 
     updateTimeForMode() {
-        switch (this.gameMode) {
-            case 'timed':
-                this.timeLeft = 60;
-                break;
-            case 'relaxed':
-                this.timeLeft = 999;
-                break;
-            case 'challenge':
-                this.timeLeft = 30;
-                break;
+        if (this.gameMode === 'relaxed') {
+            this.timeLeft = 999;
+        } else if (this.gameMode === 'challenge') {
+            this.timeLeft = Math.max(30, 60 - (this.currentLevel - 1) * 5);
+        } else {
+            this.timeLeft = Math.max(30, 60 - (this.currentLevel - 1) * 3);
         }
     }
 
     startTimer() {
         if (this.gameMode === 'relaxed') return;
-        
         this.gameTimer = setInterval(() => {
-            if (!this.isPaused && !this.isGameOver) {
-                this.timeLeft--;
-                this.updateUI();
-                
-                if (this.timeLeft <= 10 && this.timeLeft > 0) {
-                    document.getElementById('timeLeft').classList.add('timer-warning');
-                    this.playSound('warning');
-                }
-                
-                if (this.timeLeft <= 0) {
-                    this.gameOver();
-                }
+            if (this.isPaused || this.isGameOver) return;
+            this.timeLeft--;
+            this.updateUI();
+            const timeEl = document.getElementById('timeLeft');
+            if (timeEl) {
+                if (this.timeLeft <= 10 && this.timeLeft > 0) timeEl.classList.add('timer-warning');
+                else timeEl.classList.remove('timer-warning');
             }
+            if (this.timeLeft <= 0) this.gameOver();
         }, 1000);
     }
 
@@ -578,200 +500,149 @@ class SynonymGame {
 
     togglePause() {
         this.isPaused = !this.isPaused;
-        
+        const pauseLevel = document.getElementById('pauseLevel');
+        const pauseScore = document.getElementById('pauseScore');
+        const pauseMatches = document.getElementById('pauseMatches');
+        const pauseBtn = document.getElementById('pauseBtn');
         if (this.isPaused) {
-            document.getElementById('pauseLevel').textContent = this.currentLevel;
-            document.getElementById('pauseScore').textContent = this.score;
-            document.getElementById('pauseMatches').textContent = this.totalMatches - this.matchesFound;
+            if (pauseLevel) pauseLevel.textContent = this.currentLevel;
+            if (pauseScore) pauseScore.textContent = this.score;
+            if (pauseMatches) pauseMatches.textContent = this.totalMatches - this.matchesFound;
             this.openModal('pauseModal');
-            document.getElementById('pauseBtn').innerHTML = '<i class="fas fa-play"></i> Resume';
+            if (pauseBtn) pauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
         } else {
             this.closeModal('pauseModal');
-            document.getElementById('pauseBtn').innerHTML = '<i class="fas fa-pause"></i> Pause';
+            if (pauseBtn) pauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
         }
     }
 
-    gameOver() {
+    async gameOver() {
         this.isGameOver = true;
         this.stopTimer();
-        
-        // Update statistics
-        this.stats.totalMatches += this.matchesFound;
-        if (this.score > this.stats.bestScore) {
-            this.stats.bestScore = this.score;
-        }
+        this.stats.currentStreak = 0;
+        this.stats.totalMatches = (this.stats.totalMatches || 0) + this.matchesFound;
+        if (this.score > (this.stats.bestScore || 0)) this.stats.bestScore = this.score;
         await this.saveStats();
-        
-        // Update game over modal
-        document.getElementById('gameOverTitle').textContent = this.timeLeft <= 0 ? 'Time\'s Up!' : 'Game Over';
-        document.getElementById('gameOverMessage').textContent = 
-            this.timeLeft <= 0 ? 'Time ran out!' : 'Game ended';
-        document.getElementById('finalLevel').textContent = this.currentLevel;
-        document.getElementById('finalScore').textContent = this.score;
-        document.getElementById('totalMatches').textContent = this.matchesFound;
-        document.getElementById('bestScore').textContent = this.stats.bestScore;
-        
+
+        const gameOverTitle = document.getElementById('gameOverTitle');
+        const gameOverMessage = document.getElementById('gameOverMessage');
+        const finalLevel = document.getElementById('finalLevel');
+        const finalScore = document.getElementById('finalScore');
+        const totalMatches = document.getElementById('totalMatches');
+        const bestScore = document.getElementById('bestScore');
+        if (gameOverTitle) gameOverTitle.textContent = this.timeLeft <= 0 ? "Time's Up!" : 'Game Over';
+        if (gameOverMessage) gameOverMessage.textContent = this.timeLeft <= 0 ? "Time ran out!" : 'Game ended';
+        if (finalLevel) finalLevel.textContent = this.currentLevel;
+        if (finalScore) finalScore.textContent = this.score;
+        if (totalMatches) totalMatches.textContent = this.matchesFound;
+        if (bestScore) bestScore.textContent = this.stats.bestScore || 0;
+
         this.playSound('gameOver');
         this.openModal('gameOverModal');
     }
 
     updateWordCardsDefinitions() {
-        const cards = document.querySelectorAll('.word-card');
-        cards.forEach(card => {
+        document.querySelectorAll('.word-card').forEach(card => {
             card.classList.toggle('show-definition', this.showDefinitions);
         });
     }
 
     updateUI() {
-        document.getElementById('currentLevel').textContent = this.currentLevel;
-        document.getElementById('currentScore').textContent = this.score;
-        document.getElementById('timeLeft').textContent = this.gameMode === 'relaxed' ? '∞' : this.timeLeft;
-        document.getElementById('matchesLeft').textContent = this.totalMatches - this.matchesFound;
-        
-        // Update game info
-        document.getElementById('gameInfo').textContent = 
-            `Level ${this.currentLevel} • ${this.totalMatches - this.matchesFound} matches left`;
-        
-        // Update progress bar
-        const progress = (this.matchesFound / this.totalMatches) * 100;
-        document.getElementById('progressFill').style.width = `${progress}%`;
-        document.getElementById('progressText').textContent = 
-            `${this.matchesFound} / ${this.totalMatches} matches`;
-        
-        // Update hint modal
-        document.getElementById('hintMatches').textContent = this.totalMatches - this.matchesFound;
-        
-        // Show next level button if level is complete
-        if (this.matchesFound >= this.totalMatches) {
-            document.getElementById('nextLevelBtn').style.display = 'block';
-        } else {
-            document.getElementById('nextLevelBtn').style.display = 'none';
-        }
+        const currentLevelEl = document.getElementById('currentLevel');
+        const currentScoreEl = document.getElementById('currentScore');
+        const timeLeftEl = document.getElementById('timeLeft');
+        const matchesLeftEl = document.getElementById('matchesLeft');
+        const gameInfo = document.getElementById('gameInfo');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const hintMatches = document.getElementById('hintMatches');
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+
+        if (currentLevelEl) currentLevelEl.textContent = this.currentLevel;
+        if (currentScoreEl) currentScoreEl.textContent = this.score;
+        if (timeLeftEl) timeLeftEl.textContent = this.gameMode === 'relaxed' ? '∞' : this.timeLeft;
+        const left = this.totalMatches - this.matchesFound;
+        if (matchesLeftEl) matchesLeftEl.textContent = left;
+        if (gameInfo) gameInfo.textContent = `Level ${this.currentLevel} • ${left} match${left !== 1 ? 'es' : ''} left`;
+        const progress = this.totalMatches > 0 ? (this.matchesFound / this.totalMatches) * 100 : 0;
+        if (progressFill) progressFill.style.width = `${progress}%`;
+        if (progressText) progressText.textContent = `${this.matchesFound} / ${this.totalMatches} matches`;
+        if (hintMatches) hintMatches.textContent = left;
+        if (nextLevelBtn) nextLevelBtn.style.display = (this.matchesFound >= this.totalMatches) ? 'inline-flex' : 'none';
     }
 
     shareScore() {
         const shareText = `Synonym Match - Puzzle Grove\nLevel: ${this.currentLevel}\nScore: ${this.score}\n\nPlay at: ${window.location.origin}`;
-        
         if (navigator.share) {
-            navigator.share({
-                title: 'Synonym Match - Puzzle Grove',
-                text: shareText
-            });
+            navigator.share({ title: 'Synonym Match - Puzzle Grove', text: shareText });
         } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                this.showMessage('Score shared to clipboard!', 'success');
-            });
+            navigator.clipboard.writeText(shareText).then(() => this.showMessage('Score copied to clipboard!', 'success'));
         }
     }
 
     shareResult() {
         const shareText = `Synonym Match - Puzzle Grove\nFinal Level: ${this.currentLevel}\nFinal Score: ${this.score}\nTotal Matches: ${this.matchesFound}\n\nPlay at: ${window.location.origin}`;
-        
         if (navigator.share) {
-            navigator.share({
-                title: 'Synonym Match - Puzzle Grove',
-                text: shareText
-            });
+            navigator.share({ title: 'Synonym Match - Puzzle Grove', text: shareText });
         } else {
-            navigator.clipboard.writeText(shareText).then(() => {
-                this.showMessage('Result shared to clipboard!', 'success');
-            });
+            navigator.clipboard.writeText(shareText).then(() => this.showMessage('Result copied to clipboard!', 'success'));
         }
     }
 
     shuffleArray(array) {
-        const newArray = [...array];
-        for (let i = newArray.length - 1; i > 0; i--) {
+        const arr = [...array];
+        for (let i = arr.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            [arr[i], arr[j]] = [arr[j], arr[i]];
         }
-        return newArray;
+        return arr;
     }
 
     playSound(type) {
         if (!this.soundEffects) return;
-        
         try {
-            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            switch (type) {
-                case 'select':
-                    oscillator.frequency.value = 300;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                    break;
-                case 'match':
-                    oscillator.frequency.value = 600;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                    break;
-                case 'wrong':
-                    oscillator.frequency.value = 200;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                    break;
-                case 'levelComplete':
-                    oscillator.frequency.value = 800;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
-                    break;
-                case 'gameOver':
-                    oscillator.frequency.value = 150;
-                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1.5);
-                    break;
-                case 'hint':
-                    oscillator.frequency.value = 400;
-                    gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                    break;
-                case 'warning':
-                    oscillator.frequency.value = 250;
-                    gainNode.gain.setValueAtTime(0.03, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-                    break;
-            }
-            
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + (type === 'gameOver' ? 1.5 : type === 'levelComplete' ? 1 : 0.5));
-        } catch (error) {
-            console.log('Audio not supported');
-        }
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.2);
+            if (type === 'match') osc.frequency.value = 600;
+            else if (type === 'wrong') osc.frequency.value = 200;
+            else if (type === 'levelComplete') osc.frequency.value = 800;
+            else if (type === 'gameOver') osc.frequency.value = 150;
+            else if (type === 'hint') osc.frequency.value = 400;
+            else if (type === 'warning') osc.frequency.value = 250;
+            else osc.frequency.value = 300;
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.3);
+        } catch (e) {}
     }
 
-    showMessage(message, type = 'info') {
-        const messageDisplay = document.getElementById('messageDisplay');
-        messageDisplay.textContent = message;
-        messageDisplay.className = `message-display ${type} show`;
-        
-        setTimeout(() => {
-            messageDisplay.classList.remove('show');
-        }, 3000);
+    showMessage(message, type) {
+        const el = document.getElementById('messageDisplay');
+        if (!el) return;
+        el.textContent = message;
+        el.className = `message-display ${type || 'info'} show`;
+        setTimeout(() => el.classList.remove('show'), 3000);
     }
 
     openModal(modalId) {
         const modal = document.getElementById(modalId);
+        if (!modal) return;
         modal.style.display = 'block';
-        setTimeout(() => {
-            modal.classList.add('show');
-        }, 10);
+        requestAnimationFrame(() => modal.classList.add('show'));
     }
 
     closeModal(modalId) {
         const modal = document.getElementById(modalId);
+        if (!modal) return;
         modal.classList.remove('show');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
+        setTimeout(() => { modal.style.display = 'none'; }, 300);
     }
 }
 
-// Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     new SynonymGame();
 });
