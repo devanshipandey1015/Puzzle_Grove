@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupModalButtons() {
     const helpBtn = document.getElementById('helpBtn');
     const statsBtn = document.getElementById('statsBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
     
     if (helpBtn) {
         helpBtn.onclick = function(e) {
@@ -83,14 +82,6 @@ function setupModalButtons() {
             e.preventDefault();
             e.stopPropagation();
             openModal('statsModal');
-        };
-    }
-    
-    if (settingsBtn) {
-        settingsBtn.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            openModal('settingsModal');
         };
     }
     
@@ -324,7 +315,6 @@ function setupEventListeners() {
     // Modal buttons
     const helpBtn = document.getElementById('helpBtn');
     const statsBtn = document.getElementById('statsBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
     
     if (helpBtn) {
         helpBtn.addEventListener('click', (e) => {
@@ -338,22 +328,12 @@ function setupEventListeners() {
             openModal('statsModal');
         });
     }
-    if (settingsBtn) {
-        settingsBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal('settingsModal');
-        });
-    }
     document.querySelectorAll('.close').forEach(closeButton => {
         closeButton.addEventListener('click', (e) => {
             e.preventDefault();
             closeAllModals();
         });
     });
-    const darkThemeToggle = document.getElementById('darkThemeToggle');
-    const highContrastToggle = document.getElementById('highContrastToggle');
-    if (darkThemeToggle) darkThemeToggle.addEventListener('change', toggleDarkMode);
-    if (highContrastToggle) highContrastToggle.addEventListener('change', toggleHighContrast);
     document.addEventListener('keydown', handleKeyPress);
 }
 

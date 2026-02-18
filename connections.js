@@ -29,13 +29,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Modal elements
     const helpModal = document.getElementById('helpModal');
     const statsModal = document.getElementById('statsModal');
-    const settingsModal = document.getElementById('settingsModal');
     const gameEndModal = document.getElementById('gameEndModal');
     const helpBtn = document.getElementById('helpBtn');
     const statsBtn = document.getElementById('statsBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const darkThemeToggle = document.getElementById('darkThemeToggle');
-    const highContrastToggle = document.getElementById('highContrastToggle');
     const closeButtons = document.querySelectorAll('.close');
     const shareButton = document.getElementById('shareButton');
     const gameEndShareButton = document.getElementById('gameEndShareButton');
@@ -71,19 +67,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Continue with default stats if database fails
         }
         
-        // Load settings from localStorage (these are user preferences, not game stats)
-        const darkMode = localStorage.getItem('connectionsDarkMode') === 'true';
-        if (darkMode) {
-            document.body.classList.add('dark-theme');
-            darkThemeToggle.checked = true;
-        }
-        
-        const highContrast = localStorage.getItem('connectionsHighContrast') === 'true';
-        if (highContrast) {
-            document.body.classList.add('high-contrast');
-            highContrastToggle.checked = true;
-        }
-        
         updateStatsDisplay();
     }
 
@@ -112,10 +95,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Error saving game state to database:', error);
             // Continue without saving if database fails
         }
-        
-        // Save settings to localStorage (these are user preferences, not game stats)
-        localStorage.setItem('connectionsDarkMode', document.body.classList.contains('dark-theme'));
-        localStorage.setItem('connectionsHighContrast', document.body.classList.contains('high-contrast'));
     }
 
     // Update the statistics display
@@ -596,7 +575,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Modal buttons
         helpBtn.addEventListener('click', () => showModal(helpModal));
         statsBtn.addEventListener('click', () => showModal(statsModal));
-        settingsBtn.addEventListener('click', () => showModal(settingsModal));
         
         // Close modal buttons
         closeButtons.forEach(button => {
@@ -604,17 +582,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const modal = button.closest('.modal');
                 hideModal(modal);
             });
-        });
-        
-        // Settings toggles
-        darkThemeToggle.addEventListener('change', () => {
-            document.body.classList.toggle('dark-theme', darkThemeToggle.checked);
-            saveGameState();
-        });
-        
-        highContrastToggle.addEventListener('change', () => {
-            document.body.classList.toggle('high-contrast', highContrastToggle.checked);
-            saveGameState();
         });
         
         // Share buttons

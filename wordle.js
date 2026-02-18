@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', async function() {
     let currentRow = 0;
     let currentTile = 0;
     let gameOver = false;
-    let hardMode = false;
     let targetWord = "";
     let guessedWords = [];
 
@@ -60,14 +59,9 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Modal elements
     const helpModal = document.getElementById('helpModal');
     const statsModal = document.getElementById('statsModal');
-    const settingsModal = document.getElementById('settingsModal');
     const gameEndModal = document.getElementById('gameEndModal');
     const helpBtn = document.getElementById('helpBtn');
     const statsBtn = document.getElementById('statsBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const darkThemeToggle = document.getElementById('darkThemeToggle');
-    const highContrastToggle = document.getElementById('highContrastToggle');
-    const hardModeToggle = document.getElementById('hardModeToggle');
     const closeButtons = document.querySelectorAll('.close');
     const shareButton = document.getElementById('shareButton');
     const gameEndShareButton = document.getElementById('gameEndShareButton');
@@ -98,22 +92,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             // Continue with default stats if database fails
         }
         
-        // Load settings from localStorage (these are user preferences, not game stats)
-        const darkMode = localStorage.getItem('wordleDarkMode') === 'true';
-        if (darkMode) {
-            document.body.classList.add('dark-theme');
-            darkThemeToggle.checked = true;
-        }
-        
-        const highContrast = localStorage.getItem('wordleHighContrast') === 'true';
-        if (highContrast) {
-            document.body.classList.add('high-contrast');
-            highContrastToggle.checked = true;
-        }
-        
-        hardMode = localStorage.getItem('wordleHardMode') === 'true';
-        hardModeToggle.checked = hardMode;
-        
         updateStatsDisplay();
     }
 
@@ -136,11 +114,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Error saving game state to database:', error);
             // Continue without saving if database fails
         }
-        
-        // Save settings to localStorage (these are user preferences, not game stats)
-        localStorage.setItem('wordleDarkMode', document.body.classList.contains('dark-theme'));
-        localStorage.setItem('wordleHighContrast', document.body.classList.contains('high-contrast'));
-        localStorage.setItem('wordleHardMode', hardMode);
     }
 
     // Update the statistics display
@@ -268,7 +241,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Modal button clicks
         helpBtn.addEventListener('click', () => showModal(helpModal));
         statsBtn.addEventListener('click', () => showModal(statsModal));
-        settingsBtn.addEventListener('click', () => showModal(settingsModal));
         
         // Close buttons
         closeButtons.forEach(button => {
@@ -276,22 +248,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const modal = this.closest('.modal');
                 hideModal(modal);
             });
-        });
-        
-        // Toggle switches
-        darkThemeToggle.addEventListener('change', function() {
-            document.body.classList.toggle('dark-theme', this.checked);
-            saveGameState();
-        });
-        
-        highContrastToggle.addEventListener('change', function() {
-            document.body.classList.toggle('high-contrast', this.checked);
-            saveGameState();
-        });
-        
-        hardModeToggle.addEventListener('change', function() {
-            hardMode = this.checked;
-            saveGameState();
         });
         
         // Share buttons
@@ -398,36 +354,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             showMessage("Not in word list");
             shakeRow();
             return;
-        }
-
-        // Check hard mode constraints
-        if (hardMode && currentRow > 0) {
-            const prevRow = gameBoard.children[currentRow - 1];
-            let validGuess = true;
-            let errorMessage = "";
-            
-            for (let i = 0; i < 5; i++) {
-                const prevState = prevRow.children[i].getAttribute('data-state');
-                const prevLetter = prevRow.children[i].textContent;
-                
-                if (prevState === 'correct' && row.children[i].textContent !== prevLetter) {
-                    validGuess = false;
-                    errorMessage = `${prevLetter} must be in position ${i + 1}`;
-                    break;
-                }
-                
-                if (prevState === 'present' && !guess.includes(prevLetter)) {
-                    validGuess = false;
-                    errorMessage = `Guess must contain ${prevLetter}`;
-                    break;
-                }
-            }
-            
-            if (!validGuess) {
-                showMessage(errorMessage);
-                shakeRow();
-                return;
-            }
         }
         
         guessedWords.push(guess);

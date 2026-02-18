@@ -100,16 +100,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Modal elements
     const helpModal = document.getElementById('helpModal');
     const statsModal = document.getElementById('statsModal');
-    const settingsModal = document.getElementById('settingsModal');
     const gameCompleteModal = document.getElementById('gameCompleteModal');
     const wordListModal = document.getElementById('wordListModal');
     
     const helpBtn = document.getElementById('helpBtn');
     const statsBtn = document.getElementById('statsBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
-    const darkThemeToggle = document.getElementById('darkThemeToggle');
-    const highContrastToggle = document.getElementById('highContrastToggle');
-    const soundToggle = document.getElementById('soundToggle');
     const closeButtons = document.querySelectorAll('.close');
     const shareButton = document.getElementById('shareButton');
     const gameEndShareButton = document.getElementById('gameEndShareButton');
@@ -125,21 +120,27 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
             
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            // Get current user from session (safe parse)
+            let currentUser = null;
+            try {
+                currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser') || 'null');
+            } catch (_) {
+                currentUser = null;
+            }
             if (currentUser && currentUser.username) {
                 // Load stats from database
                 const userStats = await window.dbManager.getUserStats(currentUser.username);
                 if (userStats && userStats.gameStats && userStats.gameStats.wordsearch) {
-                    const wordsearchStats = userStats.gameStats.wordsearch;
+                    const ws = userStats.gameStats.wordsearch;
+                    const played = ws.gamesPlayed || 0;
                     gameStats = {
-                        gamesPlayed: wordsearchStats.gamesPlayed || 0,
-                        gamesWon: wordsearchStats.gamesWon || 0,
-                        currentStreak: wordsearchStats.currentStreak || 0,
-                        maxStreak: wordsearchStats.maxStreak || 0,
-                        hintsUsed: wordsearchStats.hintsUsed || 0,
-                        wordsFound: wordsearchStats.wordsFound || 0,
-                        avgTime: wordsearchStats.avgTime || 0
+                        gamesPlayed: played,
+                        totalWordsFound: ws.wordsFound || 0,
+                        totalHintsUsed: ws.hintsUsed || 0,
+                        totalCompletionTime: ((ws.avgTime || 0) * played * 60) || 0,
+                        gamesWon: ws.gamesWon || 0,
+                        currentStreak: ws.currentStreak || 0,
+                        maxStreak: ws.maxStreak || 0
                     };
                 }
             }
@@ -147,22 +148,6 @@ document.addEventListener('DOMContentLoaded', async function() {
             console.error('Error loading game state from database:', error);
             // Continue with default stats if database fails
         }
-        
-        // Load settings from localStorage (these are user preferences, not game stats)
-        const darkMode = localStorage.getItem('wordsearchDarkMode') === 'true';
-        if (darkMode) {
-            document.body.classList.add('dark-theme');
-            darkThemeToggle.checked = true;
-        }
-        
-        const highContrast = localStorage.getItem('wordsearchHighContrast') === 'true';
-        if (highContrast) {
-            document.body.classList.add('high-contrast');
-            highContrastToggle.checked = true;
-        }
-        
-        const soundEnabled = localStorage.getItem('wordsearchSound') !== 'false'; // Default to true
-        soundToggle.checked = soundEnabled;
         
         updateStatsDisplay();
     }
@@ -176,49 +161,58 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return;
             }
             
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            // Get current user from session (safe parse)
+            let currentUser = null;
+            try {
+                currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser') || 'null');
+            } catch (_) {
+                currentUser = null;
+            }
             if (currentUser && currentUser.username) {
-                // Save stats to database
+                const played = gameStats.gamesPlayed || 0;
+                const avgTime = played > 0 && gameStats.totalCompletionTime != null
+                    ? (gameStats.totalCompletionTime / played) / 60
+                    : 0;
                 await window.dbManager.updateUserStats(currentUser.username, 'wordsearch', {
-                    gamesPlayed: gameStats.gamesPlayed,
-                    gamesWon: gameStats.gamesWon,
-                    currentStreak: gameStats.currentStreak,
-                    maxStreak: gameStats.maxStreak,
-                    hintsUsed: gameStats.hintsUsed,
-                    wordsFound: gameStats.wordsFound,
-                    avgTime: gameStats.avgTime
+                    gamesPlayed: played,
+                    gamesWon: gameStats.gamesWon || 0,
+                    currentStreak: gameStats.currentStreak || 0,
+                    maxStreak: gameStats.maxStreak || 0,
+                    hintsUsed: gameStats.totalHintsUsed || 0,
+                    wordsFound: gameStats.totalWordsFound || 0,
+                    avgTime: Math.round(avgTime * 10) / 10
                 });
             }
         } catch (error) {
             console.error('Error saving game state to database:', error);
             // Continue without saving if database fails
         }
-        
-        // Save settings to localStorage (these are user preferences, not game stats)
-        localStorage.setItem('wordsearchDarkMode', document.body.classList.contains('dark-theme'));
-        localStorage.setItem('wordsearchHighContrast', document.body.classList.contains('high-contrast'));
-        localStorage.setItem('wordsearchSound', soundToggle.checked);
     }
 
     // Update the statistics display
     function updateStatsDisplay() {
-        document.getElementById('gamesPlayed').textContent = gameStats.gamesPlayed;
-        document.getElementById('wordsFound').textContent = gameStats.totalWordsFound;
-        document.getElementById('hintsUsed').textContent = gameStats.totalHintsUsed;
-        
-        // Calculate average completion time in minutes
+        const g = gameStats;
+        const el = id => document.getElementById(id);
+        if (el('gamesPlayed')) el('gamesPlayed').textContent = g.gamesPlayed ?? 0;
+        if (el('wordsFound')) el('wordsFound').textContent = g.totalWordsFound ?? 0;
+        if (el('hintsUsed')) el('hintsUsed').textContent = g.totalHintsUsed ?? 0;
         let avgTime = 0;
-        if (gameStats.gamesPlayed > 0) {
-            avgTime = Math.round((gameStats.totalCompletionTime / gameStats.gamesPlayed) / 60 * 10) / 10;
+        if (g.gamesPlayed > 0 && g.totalCompletionTime != null) {
+            avgTime = Math.round((g.totalCompletionTime / g.gamesPlayed) / 60 * 10) / 10;
         }
-        document.getElementById('avgCompletionTime').textContent = avgTime;
+        if (el('avgCompletionTime')) el('avgCompletionTime').textContent = avgTime;
     }
 
     // Choose a random puzzle
     function selectRandomPuzzle() {
-        // Get list of previously used puzzles from local storage
-        const usedPuzzleIds = JSON.parse(localStorage.getItem('wordsearchUsedPuzzles')) || [];
+        // Get list of previously used puzzles from local storage (safe parse)
+        let usedPuzzleIds = [];
+        try {
+            usedPuzzleIds = JSON.parse(localStorage.getItem('wordsearchUsedPuzzles') || '[]') || [];
+        } catch (_) {
+            usedPuzzleIds = [];
+        }
+        if (!Array.isArray(usedPuzzleIds)) usedPuzzleIds = [];
         
         // Filter out previously used puzzles
         let availablePuzzles = puzzleThemes.filter(puzzle => !usedPuzzleIds.includes(puzzle.id));
@@ -242,7 +236,11 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Initialize the game
     async function initGame() {
-        await loadGameState();
+        try {
+            await loadGameState();
+        } catch (e) {
+            console.warn('loadGameState failed, using defaults:', e);
+        }
         
         // Reset game state
         foundWords = [];
@@ -251,27 +249,33 @@ document.addEventListener('DOMContentLoaded', async function() {
         startTime = Date.now();
         gameCompleted = false;
         
-        // Get a random puzzle
-        currentPuzzle = selectRandomPuzzle();
-        words = currentPuzzle.words.map(word => word.toUpperCase());
+        // Get a random puzzle (must not throw so grid always loads)
+        try {
+            currentPuzzle = selectRandomPuzzle();
+        } catch (e) {
+            console.warn('selectRandomPuzzle failed, using first theme:', e);
+            currentPuzzle = puzzleThemes[0];
+        }
+        if (!currentPuzzle || !currentPuzzle.words || !currentPuzzle.words.length) {
+            currentPuzzle = puzzleThemes[0];
+        }
+        words = currentPuzzle.words.map(w => String(w).toUpperCase());
         
         // Update theme display
-        gameTheme.textContent = currentPuzzle.theme;
-        themeDescription.textContent = currentPuzzle.description;
-        totalWordsCount.textContent = words.length;
-        foundWordsCount.textContent = 0;
+        if (gameTheme) gameTheme.textContent = currentPuzzle.theme || 'Word Strands';
+        if (themeDescription) themeDescription.textContent = currentPuzzle.description || 'Find the hidden words';
+        if (totalWordsCount) totalWordsCount.textContent = words.length;
+        if (foundWordsCount) foundWordsCount.textContent = 0;
         
         // Reset progress bar
         updateProgressBar();
         
         // Clear displays
-        currentWordDisplay.textContent = '';
-        foundWordsList.innerHTML = '';
+        if (currentWordDisplay) currentWordDisplay.textContent = '';
+        if (foundWordsList) foundWordsList.innerHTML = '';
         
-        // Create the grid
+        // Create and display the grid (required for game to show)
         createGrid();
-        
-        // Display the grid
         displayGrid();
         
         // Set up event listeners
@@ -371,6 +375,10 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     // Display the grid on the game board
     function displayGrid() {
+        if (!gameBoard) {
+            console.error('Word Strands: game board element not found');
+            return;
+        }
         // Clear the game board
         gameBoard.innerHTML = '';
         
@@ -511,9 +519,8 @@ document.addEventListener('DOMContentLoaded', async function() {
         progressBar.style.width = `${progress}%`;
     }
 
-    // Play a sound effect
+    // Play a sound effect (settings UI removed; sound always enabled)
     function playSound(type) {
-        if (!soundToggle.checked) return;
         
         // Use AudioContext for browser compatibility
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -838,7 +845,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         // Modal buttons
         helpBtn.addEventListener('click', () => showModal(helpModal));
         statsBtn.addEventListener('click', () => showModal(statsModal));
-        settingsBtn.addEventListener('click', () => showModal(settingsModal));
         
         // Close modal buttons
         closeButtons.forEach(button => {
@@ -846,21 +852,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const modal = button.closest('.modal');
                 hideModal(modal);
             });
-        });
-        
-        // Settings toggles
-        darkThemeToggle.addEventListener('change', () => {
-            document.body.classList.toggle('dark-theme', darkThemeToggle.checked);
-            saveGameState();
-        });
-        
-        highContrastToggle.addEventListener('change', () => {
-            document.body.classList.toggle('high-contrast', highContrastToggle.checked);
-            saveGameState();
-        });
-        
-        soundToggle.addEventListener('change', () => {
-            saveGameState();
         });
         
         // Share buttons
@@ -928,16 +919,33 @@ document.addEventListener('DOMContentLoaded', async function() {
         }, 300);
     }
 
-    // Start the game
+    // Start the game – ensure grid always loads even if something throws
     try {
         await initGame();
     } catch (error) {
-        console.error('Error initializing game:', error);
-        // Fallback: try to load without database
-        try {
-            await loadGameState();
-        } catch (fallbackError) {
-            console.error('Fallback loadGameState failed:', fallbackError);
+        console.error('Error initializing Word Strands:', error);
+        // Last resort: show first puzzle so user at least sees a grid
+        if (!currentPuzzle || !words || !words.length) {
+            try {
+                currentPuzzle = puzzleThemes[0];
+                words = currentPuzzle.words.map(w => String(w).toUpperCase());
+                foundWords = [];
+                selectedTiles = [];
+                hintsUsed = 0;
+                startTime = Date.now();
+                gameCompleted = false;
+                if (gameTheme) gameTheme.textContent = currentPuzzle.theme;
+                if (themeDescription) themeDescription.textContent = currentPuzzle.description;
+                if (totalWordsCount) totalWordsCount.textContent = words.length;
+                if (foundWordsCount) foundWordsCount.textContent = 0;
+                if (currentWordDisplay) currentWordDisplay.textContent = '';
+                if (foundWordsList) foundWordsList.innerHTML = '';
+                createGrid();
+                displayGrid();
+                setupEventListeners();
+            } catch (fallbackError) {
+                console.error('Fallback init failed:', fallbackError);
+            }
         }
     }
 });

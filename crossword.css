@@ -95,6 +95,119 @@ body.dark-theme .crossword-bg {
     100% { transform: translate(0, 0) rotate(0deg) scale(1); }
 }
 
+/* Wrapper: Wordle-like font, text black in light / white in dark */
+.crossword-wrapper {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+}
+body.dark-theme .crossword-wrapper,
+[data-theme="dark"] .crossword-wrapper {
+    color: #fff;
+}
+/* No box behind header - force transparent so no light bar */
+.crossword-wrapper .game-header {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    border-bottom: none !important;
+}
+body.dark-theme .crossword-wrapper .game-header,
+[data-theme="dark"] .crossword-wrapper .game-header {
+    background: transparent !important;
+    border-bottom: none !important;
+}
+/* Title: black in light, white in dark (remove gradient) */
+.crossword-wrapper .game-header .page-header__title {
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0;
+    background: none !important;
+    -webkit-text-fill-color: unset !important;
+    background-clip: unset !important;
+    text-shadow: none;
+    color: #111827;
+}
+body.dark-theme .crossword-wrapper .game-header .page-header__title,
+[data-theme="dark"] .crossword-wrapper .game-header .page-header__title {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+/* Subtitle and icons use wrapper color */
+.crossword-wrapper .puzzle-info,
+.crossword-wrapper .back-button,
+.crossword-wrapper .icon-button {
+    color: inherit;
+}
+body.dark-theme .crossword-wrapper .puzzle-info,
+body.dark-theme .crossword-wrapper .back-button,
+body.dark-theme .crossword-wrapper .icon-button,
+[data-theme="dark"] .crossword-wrapper .puzzle-info,
+[data-theme="dark"] .crossword-wrapper .back-button,
+[data-theme="dark"] .crossword-wrapper .icon-button {
+    color: #fff;
+}
+/* Remove white background from main game container */
+.crossword-wrapper .game-container {
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+    border: none;
+}
+body.dark-theme .crossword-wrapper .game-container,
+[data-theme="dark"] .crossword-wrapper .game-container {
+    background: transparent;
+    border: none;
+}
+/* Stats and controls text */
+body.dark-theme .crossword-wrapper .stat-value,
+body.dark-theme .crossword-wrapper .stat-label,
+body.dark-theme .crossword-wrapper .current-word-info,
+body.dark-theme .crossword-wrapper #currentDirection,
+body.dark-theme .crossword-wrapper #currentClue,
+[data-theme="dark"] .crossword-wrapper .stat-value,
+[data-theme="dark"] .crossword-wrapper .stat-label,
+[data-theme="dark"] .crossword-wrapper .current-word-info,
+[data-theme="dark"] .crossword-wrapper #currentDirection,
+[data-theme="dark"] .crossword-wrapper #currentClue {
+    color: #fff;
+}
+/* Clues panel: no background box in dark mode; hint text white on page background */
+body.dark-theme .crossword-wrapper .clues-container,
+[data-theme="dark"] .crossword-wrapper .clues-container {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+body.dark-theme .crossword-wrapper .clues-section h3,
+body.dark-theme .crossword-wrapper .clue-item,
+body.dark-theme .crossword-wrapper .clue-number,
+body.dark-theme .crossword-wrapper .clues-list,
+[data-theme="dark"] .crossword-wrapper .clues-section h3,
+[data-theme="dark"] .crossword-wrapper .clue-item,
+[data-theme="dark"] .crossword-wrapper .clue-number,
+[data-theme="dark"] .crossword-wrapper .clues-list {
+    color: #fff !important;
+}
+/* No background boxes on clue items in dark mode */
+body.dark-theme .crossword-wrapper .clue-item,
+body.dark-theme .crossword-wrapper .clue-item:hover,
+body.dark-theme .crossword-wrapper .clue-item.active,
+body.dark-theme .crossword-wrapper .clue-item.completed,
+[data-theme="dark"] .crossword-wrapper .clue-item,
+[data-theme="dark"] .crossword-wrapper .clue-item:hover,
+[data-theme="dark"] .crossword-wrapper .clue-item.active,
+[data-theme="dark"] .crossword-wrapper .clue-item.completed {
+    background: transparent !important;
+    border-left-color: rgba(255, 255, 255, 0.4);
+}
+/* No background box on controls in dark mode */
+body.dark-theme .crossword-wrapper .crossword-controls,
+[data-theme="dark"] .crossword-wrapper .crossword-controls {
+    background: transparent !important;
+    border: none !important;
+}
+
 /* Game header */
 .game-header {
     width: 100%;

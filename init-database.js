@@ -7,11 +7,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Check if demo user exists, if not create it
     try {
-        await window.dbManager.getUserByUsername('dhaarmi');
+        await window.dbManager.getUserByUsername('devanshi');
     } catch (_) {
         try {
             await window.dbManager.registerUser({
-                username: 'dhaarmi',
+                username: 'devanshi',
                 email: 'demo@puzzlegrove.com',
                 password: '2005',
                 fullName: 'Demo User'
@@ -23,31 +23,31 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Initialize some sample data for demo user
     try {
-        const stats = await window.dbManager.getUserStats('dhaarmi');
+        const stats = await window.dbManager.getUserStats('devanshi');
         if (stats) {
             // Add some sample game progress
-            await window.dbManager.updateUserStats('dhaarmi', 'wordle', {
+            await window.dbManager.updateUserStats('devanshi', 'wordle', {
                 gamesPlayed: 5,
                 gamesWon: 4,
                 currentStreak: 3,
                 maxStreak: 5
             });
             
-            await window.dbManager.updateUserStats('dhaarmi', 'connections', {
+            await window.dbManager.updateUserStats('devanshi', 'connections', {
                 gamesPlayed: 3,
                 gamesWon: 2,
                 currentStreak: 1,
                 maxStreak: 3
             });
 
-            await window.dbManager.updateUserStats('dhaarmi', 'anagrams', {
+            await window.dbManager.updateUserStats('devanshi', 'anagrams', {
                 gamesPlayed: 7,
                 gamesWon: 6,
                 currentStreak: 2,
                 maxStreak: 4
             });
 
-            await window.dbManager.updateUserStats('dhaarmi', 'wordsearch', {
+            await window.dbManager.updateUserStats('devanshi', 'wordsearch', {
                 gamesPlayed: 4,
                 gamesWon: 3,
                 currentStreak: 0,

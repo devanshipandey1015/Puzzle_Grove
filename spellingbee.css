@@ -86,6 +86,76 @@ body.high-contrast {
     100% { transform: translate(0, 0); }
 }
 
+/* Wordle-like font and colors; scoped to Spelling Bee; visible in dark mode */
+.spellingbee-container {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+}
+body.dark-theme .spellingbee-container,
+[data-theme="dark"] .spellingbee-container {
+    color: var(--primary-text);
+}
+.spellingbee-container .game-header .page-header__title,
+.spellingbee-container .back-button,
+.spellingbee-container .icon-button,
+.spellingbee-container .score-label,
+.spellingbee-container .game-status,
+.spellingbee-container .hex-cell,
+.spellingbee-container .found-words h3,
+.spellingbee-container .word-item,
+.spellingbee-container .word-display,
+.spellingbee-container #current-rank,
+.spellingbee-container #current-score,
+.spellingbee-container .message-display,
+.spellingbee-container .found-counter,
+.spellingbee-container .total-counter {
+    font-family: inherit;
+    color: inherit;
+}
+/* Title: black in light mode, white in dark mode */
+.spellingbee-container .game-header .page-header__title {
+    color: #111827;
+}
+body.dark-theme .spellingbee-container .game-header .page-header__title,
+[data-theme="dark"] .spellingbee-container .game-header .page-header__title {
+    color: #fff;
+}
+/* No box behind header: transparent so title is visible on dark bg */
+.spellingbee-container .game-header {
+    background-color: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+body.dark-theme .spellingbee-container .game-header,
+[data-theme="dark"] .spellingbee-container .game-header {
+    background-color: transparent;
+}
+/* Force all text white in dark mode */
+body.dark-theme .spellingbee-container .score-label,
+body.dark-theme .spellingbee-container .game-status,
+body.dark-theme .spellingbee-container .found-words h3,
+body.dark-theme .spellingbee-container .hex-cell:not(.center),
+body.dark-theme .spellingbee-container #current-rank,
+body.dark-theme .spellingbee-container #current-score,
+body.dark-theme .spellingbee-container .word-display,
+body.dark-theme .spellingbee-container .word-item,
+body.dark-theme .spellingbee-container .found-counter,
+body.dark-theme .spellingbee-container .total-counter,
+body.dark-theme .spellingbee-container .message-display,
+[data-theme="dark"] .spellingbee-container .score-label,
+[data-theme="dark"] .spellingbee-container .game-status,
+[data-theme="dark"] .spellingbee-container .found-words h3,
+[data-theme="dark"] .spellingbee-container .hex-cell:not(.center),
+[data-theme="dark"] .spellingbee-container #current-rank,
+[data-theme="dark"] .spellingbee-container #current-score,
+[data-theme="dark"] .spellingbee-container .word-display,
+[data-theme="dark"] .spellingbee-container .word-item,
+[data-theme="dark"] .spellingbee-container .found-counter,
+[data-theme="dark"] .spellingbee-container .total-counter,
+[data-theme="dark"] .spellingbee-container .message-display {
+    color: #fff;
+}
+
 /* Click animation for hex cells */
 .hex-cell.clicked {
     animation: cellClick 0.12s ease-in-out;
@@ -119,16 +189,13 @@ body.dark-theme .game-header {
     padding: 0 var(--space-5);
 }
 
-.game-header .page-header__title {
-    font-family: 'Montserrat', sans-serif;
+.spellingbee-container .game-header .page-header__title {
     font-weight: 700;
     font-size: 1.8rem;
     margin: 0;
-    color: var(--spellingbee-primary);
 }
 
-.back-button {
-    color: var(--spellingbee-text);
+.spellingbee-container .back-button {
     font-size: 1.2rem;
     text-decoration: none;
     display: flex;
@@ -153,12 +220,11 @@ body.dark-theme .back-button:hover {
     gap: 10px;
 }
 
-.icon-button {
+.spellingbee-container .icon-button {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 1.2rem;
-    color: var(--spellingbee-text);
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -234,8 +300,6 @@ body.dark-theme .icon-button:hover {
 #current-score {
     font-size: 2.5rem;
     font-weight: bold;
-    color: var(--spellingbee-primary);
-    font-family: 'Clear Sans', sans-serif;
     line-height: 1;
 }
 
@@ -254,8 +318,6 @@ body.dark-theme .icon-button:hover {
 
 #current-rank {
     font-weight: 600;
-    color: var(--spellingbee-primary);
-    font-family: 'Quicksand', sans-serif;
 }
 
 /* Game status */
@@ -264,7 +326,6 @@ body.dark-theme .icon-button:hover {
     justify-content: space-between;
     gap: 10px;
     margin-bottom: 20px;
-    font-family: 'Quicksand', sans-serif;
 }
 
 /* Hive container */
@@ -297,9 +358,7 @@ body.dark-theme .icon-button:hover {
     justify-content: center;
     font-size: 1.8rem;
     font-weight: bold;
-    color: var(--spellingbee-text);
     text-transform: uppercase;
-    font-family: 'Clear Sans', sans-serif;
     cursor: pointer;
     transition: all 0.2s ease;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -372,8 +431,6 @@ body.dark-theme .icon-button:hover {
     min-height: 48px;
     margin-bottom: 18px;
     margin-top: 10px;
-    color: var(--spellingbee-primary);
-    font-family: 'Montserrat', 'Clear Sans', sans-serif;
     text-transform: uppercase;
     text-align: center;
     padding: 10px;
@@ -408,8 +465,6 @@ body.dark-theme .icon-button:hover {
 .found-words h3 {
     margin-top: 0;
     margin-bottom: 15px;
-    font-family: 'Montserrat', sans-serif;
-    color: var(--spellingbee-text);
     font-weight: 600;
     font-size: 1.2rem;
 }
@@ -422,12 +477,10 @@ body.dark-theme .icon-button:hover {
 
 .word-item {
     padding: 8px 5px;
-    font-family: 'Clear Sans', sans-serif;
     border-bottom: 1px solid var(--spellingbee-hex-border);
 }
 
 .word-item.pangram {
-    color: var(--spellingbee-primary);
     font-weight: bold;
 }
 
@@ -519,7 +572,7 @@ body.dark-theme .icon-button:hover {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--spellingbee-primary);
-    font-family: 'Clear Sans', sans-serif;
+    font-family: inherit;
 }
 
 .stat-label {

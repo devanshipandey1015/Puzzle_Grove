@@ -17,9 +17,10 @@
     --category-blue: #4199e1;
     --category-purple: #8b5cf6;
     
-    /* Game sizes */
+    /* Game sizes – constrained width 600–700px, 24px spacing */
     --tile-height: 56px;
-    --board-width: 360px;
+    --game-max-width: 650px;
+    --grid-gap: 12px;
 }
 
 /* Dark mode variables */
@@ -47,7 +48,25 @@ body.high-contrast {
     --category-purple: #a571ff;
 }
 
-/* Game-specific body styling */
+/* Local style wrapper: same font as Wordle; center and constrain width; use theme text color */
+.connections-container {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: var(--primary-text);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--game-max-width);
+    margin: 0 auto;
+    align-items: center;
+    box-sizing: border-box;
+}
+/* Fallback when only body.dark-theme is used (e.g. legacy) */
+body.dark-theme .connections-container {
+    color: var(--connections-text);
+}
+
+/* Game-specific body styling (layout only; font/color scoped to .connections-container) */
 body {
     background-color: var(--connections-bg);
     color: var(--connections-text);
@@ -56,22 +75,23 @@ body {
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
-    font-family: 'Clear Sans', 'Quicksand', Arial, sans-serif;
 }
 
-/* Header styling */
+/* Header styling – 24px section spacing */
 .game-header {
     width: 100%;
     border-bottom: 1px solid var(--tile-border);
     padding: 10px 0;
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3);
 }
 
 .game-header .page-header__inner {
-    width: 95%;
-    max-width: 550px;
+    width: 100%;
+    max-width: var(--game-max-width);
     margin: 0 auto;
+    padding: 0 var(--space-3);
+    box-sizing: border-box;
     grid-template-columns: minmax(40px, auto) 1fr minmax(40px, auto);
 }
 .game-header .page-header__back { grid-column: 1; }
@@ -130,26 +150,28 @@ body {
     background-color: var(--tile-border);
 }
 
-/* Game board styling */
+/* Game area – centered, 24px section spacing */
 .connections-game {
-    max-width: 550px;
-    width: 95%;
+    width: 100%;
+    max-width: var(--game-max-width);
     margin: 0 auto;
-    padding: 10px 0 30px;
+    padding: 0 var(--space-3) var(--space-3);
     display: flex;
     flex-direction: column;
     align-items: center;
+    box-sizing: border-box;
 }
 
 .message-display {
     min-height: 24px;
-    margin-bottom: 16px;
+    margin-bottom: var(--space-3);
     font-size: 16px;
     text-align: center;
     color: var(--connections-text);
     opacity: 0;
     transition: opacity 0.2s ease;
     font-weight: 600;
+    width: 100%;
 }
 
 .message-display.show {
@@ -164,21 +186,23 @@ body {
     color: #2ecc71;
 }
 
+/* Word grid – 4 columns, equal gap, cards same size, centered */
 .game-board {
     width: 100%;
-    max-width: var(--board-width);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-gap: 8px;
-    margin-bottom: 16px;
+    gap: var(--grid-gap);
+    margin-bottom: var(--space-3);
 }
 
 .tile {
     position: relative;
-    height: var(--tile-height);
+    min-height: var(--tile-height);
+    aspect-ratio: 1;
     border: 2px solid var(--tile-border);
     border-radius: 8px;
     background-color: var(--tile-bg);
+    color: var(--primary-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -189,8 +213,8 @@ body {
     user-select: none;
     transition: all 0.15s ease;
     padding: 4px;
+    box-sizing: border-box;
 }
-
 .tile.selected {
     border-color: var(--selected-border);
     background-color: var(--selected-bg);
@@ -230,24 +254,27 @@ body {
     20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
+/* Bottom buttons – one row, equal spacing, centered; Submit primary */
 .game-controls {
     width: 100%;
-    max-width: var(--board-width);
     display: flex;
-    justify-content: space-between;
-    margin-bottom: 24px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+    flex-wrap: wrap;
 }
 
-/* .control-button from components.css */
+/* .control-button from components.css; primary (Submit) stands out */
 .control-button i { margin-right: var(--space-1); }
 
 .groups-container {
     width: 100%;
-    max-width: var(--board-width);
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: var(--space-3);
 }
 
 .found-group {
@@ -314,7 +341,10 @@ body {
 .mistakes-counter {
     font-size: 16px;
     font-weight: 600;
-    margin-top: 5px;
+    margin-top: 0;
+    margin-bottom: var(--space-3);
+    text-align: center;
+    width: 100%;
 }
 
 /* Modal styling (for help, stats, etc.) */
@@ -444,7 +474,6 @@ body {
 /* Responsive styles */
 @media (max-width: 450px) {
     :root {
-        --board-width: 320px;
         --tile-height: 50px;
     }
     
@@ -473,7 +502,6 @@ body {
 
 @media (max-width: 350px) {
     :root {
-        --board-width: 280px;
         --tile-height: 45px;
     }
     

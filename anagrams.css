@@ -30,6 +30,47 @@ body.high-contrast {
     --anagrams-incorrect: #d50000;
 }
 
+/* Wordle-like font and colors; scoped to Anagrams only; visible in dark mode */
+.anagrams-container {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+}
+body.dark-theme .anagrams-container,
+[data-theme="dark"] .anagrams-container {
+    color: var(--primary-text);
+}
+.anagrams-container .game-header .page-header__title,
+.anagrams-container .theme-display h2,
+.anagrams-container .anagram-display h3,
+.anagrams-container .solved-words h3,
+.anagrams-container #anagram-word,
+.anagrams-container #answer-input,
+.anagrams-container .back-button,
+.anagrams-container .icon-button,
+.anagrams-container #solved-list li,
+.anagrams-container #feedback-message,
+.anagrams-container .hint {
+    font-family: inherit;
+    color: inherit;
+}
+/* Title: black in light mode, white in dark mode (override any accent) */
+.anagrams-container .game-header .page-header__title {
+    color: #111827;
+}
+body.dark-theme .anagrams-container .game-header .page-header__title,
+[data-theme="dark"] .anagrams-container .game-header .page-header__title {
+    color: #fff;
+}
+/* No box behind header: transparent so title is visible on page background */
+.anagrams-container .game-header {
+    background-color: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+}
+body.dark-theme .anagrams-container .game-header,
+[data-theme="dark"] .anagrams-container .game-header {
+    background-color: transparent;
+}
 /* Background animation */
 .anagrams-bg {
     position: fixed;
@@ -103,11 +144,9 @@ body.dark-theme .game-header {
 }
 
 .game-header .page-header__title {
-    font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 1.8rem;
     margin: 0;
-    color: var(--anagrams-primary);
 }
 
 .back-button {
@@ -203,12 +242,12 @@ body.dark-theme .icon-button:hover {
 
 select {
     padding: 10px 15px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border);
     border-radius: 6px;
     font-size: 1rem;
-    font-family: 'Quicksand', sans-serif;
-    background-color: var(--anagrams-bg);
-    color: var(--anagrams-text);
+    font-family: inherit;
+    background-color: var(--card-bg);
+    color: var(--primary-text);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -243,8 +282,6 @@ button:disabled {
 }
 
 .theme-display h2 {
-    color: var(--anagrams-primary);
-    font-family: 'Montserrat', sans-serif;
     margin-bottom: 5px;
 }
 
@@ -254,9 +291,7 @@ button:disabled {
 }
 
 .anagram-display h3 {
-    color: var(--anagrams-text);
     margin-bottom: 10px;
-    font-family: 'Montserrat', sans-serif;
     font-weight: 500;
 }
 
@@ -269,13 +304,11 @@ button:disabled {
     padding: 20px;
     border-radius: 10px;
     margin-top: 10px;
-    color: var(--anagrams-primary);
     min-height: 60px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: 'Clear Sans', sans-serif;
 }
 
 .answer-section {
@@ -293,21 +326,17 @@ button:disabled {
     font-size: 1.1rem;
     flex-grow: 1;
     max-width: 300px;
-    font-family: 'Clear Sans', sans-serif;
-    color: var(--anagrams-text);
-    background-color: var(--anagrams-bg);
+    font-family: inherit;
+    color: var(--primary-text);
+    background-color: var(--card-bg);
     transition: all 0.3s;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 #answer-input:focus {
-    border-color: var(--anagrams-primary);
+    border-color: var(--accent);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
-}
-
-body.dark-theme #answer-input {
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 0 3px var(--accent-focus-ring);
 }
 
 .feedback-section {
@@ -318,10 +347,10 @@ body.dark-theme #answer-input {
 
 #feedback-message {
     font-weight: bold;
-    font-family: 'Quicksand', sans-serif;
     transition: all 0.3s;
     padding: 5px;
     border-radius: 4px;
+    color: inherit;
 }
 
 .feedback-section .correct {
@@ -341,10 +370,8 @@ body.dark-theme #answer-input {
 }
 
 .solved-words h3 {
-    color: var(--anagrams-text);
     margin-top: 0;
     margin-bottom: 15px;
-    font-family: 'Montserrat', sans-serif;
     font-weight: 500;
 }
 
@@ -357,10 +384,10 @@ body.dark-theme #answer-input {
 #solved-list li {
     padding: 12px 10px;
     border-bottom: 1px solid var(--anagram-display-border);
-    font-family: 'Clear Sans', sans-serif;
     font-size: 1.1rem;
     display: flex;
     align-items: center;
+    color: inherit;
 }
 
 #solved-list li:last-child {
@@ -382,13 +409,8 @@ body.dark-theme #answer-input {
 
 .hint {
     font-style: italic;
-    color: #7f8c8d;
     margin-top: 8px;
-    font-family: 'Quicksand', sans-serif;
-}
-
-body.dark-theme .hint {
-    color: #a0a0a0;
+    color: var(--secondary-text);
 }
 
 /* Modal styles */

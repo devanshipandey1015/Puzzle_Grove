@@ -86,20 +86,17 @@ class HangmanGame {
     loadSettings() {
         const savedSettings = localStorage.getItem('hangmanSettings');
         if (savedSettings) {
-            const settings = JSON.parse(savedSettings);
-            this.difficulty = settings.difficulty || 'medium';
-            this.showHints = settings.showHints !== undefined ? settings.showHints : true;
-            this.darkTheme = settings.darkTheme || false;
-            this.soundEffects = settings.soundEffects !== undefined ? settings.soundEffects : true;
-            
-            // Apply settings to UI
-            document.getElementById('difficultySelect').value = this.difficulty;
-            document.getElementById('showHintsToggle').checked = this.showHints;
-            document.getElementById('darkThemeToggle').checked = this.darkTheme;
-            document.getElementById('soundToggle').checked = this.soundEffects;
-            
-            if (this.darkTheme) {
-                document.body.classList.add('dark-theme');
+            try {
+                const settings = JSON.parse(savedSettings);
+                this.difficulty = settings.difficulty || 'medium';
+                this.showHints = settings.showHints !== undefined ? settings.showHints : true;
+                this.darkTheme = settings.darkTheme || false;
+                this.soundEffects = settings.soundEffects !== undefined ? settings.soundEffects : true;
+                if (this.darkTheme) {
+                    document.body.classList.add('dark-theme');
+                }
+            } catch (e) {
+                // use defaults if parse fails
             }
         }
     }
@@ -118,12 +115,14 @@ class HangmanGame {
         try {
             // Check if database manager is available
             if (typeof window.dbManager === 'undefined') {
-                console.log('Database manager not available, using default stats');
                 return;
             }
             
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            let currentUser = null;
+            try {
+                const raw = localStorage.getItem('puzzleGroveUser');
+                currentUser = raw ? JSON.parse(raw) : null;
+            } catch (e) { /* ignore */ }
             if (currentUser && currentUser.username) {
                 // Load stats from database
                 const userStats = await window.dbManager.getUserStats(currentUser.username);
@@ -133,12 +132,12 @@ class HangmanGame {
                         gamesPlayed: hangmanStats.gamesPlayed || 0,
                         gamesWon: hangmanStats.gamesWon || 0,
                         currentStreak: hangmanStats.currentStreak || 0,
-                        maxStreak: hangmanStats.maxStreak || 0
+                        maxStreak: hangmanStats.maxStreak || 0,
+                        hintsUsed: hangmanStats.hintsUsed != null ? hangmanStats.hintsUsed : 0
                     };
                 }
             }
         } catch (error) {
-            console.error('Error loading game state from database:', error);
             // Continue with default stats if database fails
         }
     }
@@ -147,12 +146,14 @@ class HangmanGame {
         try {
             // Check if database manager is available
             if (typeof window.dbManager === 'undefined') {
-                console.log('Database manager not available, skipping save');
                 return;
             }
             
-            // Get current user from session
-            const currentUser = JSON.parse(localStorage.getItem('puzzleGroveUser'));
+            let currentUser = null;
+            try {
+                const raw = localStorage.getItem('puzzleGroveUser');
+                currentUser = raw ? JSON.parse(raw) : null;
+            } catch (e) { /* ignore */ }
             if (currentUser && currentUser.username) {
                 // Save stats to database
                 await window.dbManager.updateUserStats(currentUser.username, 'hangman', {
@@ -163,85 +164,49 @@ class HangmanGame {
                 });
             }
         } catch (error) {
-            console.error('Error saving game state to database:', error);
             // Continue without saving if database fails
         }
     }
 
     setupEventListeners() {
-        // Settings modal
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsModal = document.getElementById('settingsModal');
-        const closeBtns = document.querySelectorAll('.close');
-
-        settingsBtn.addEventListener('click', () => this.openModal('settingsModal'));
-        
-        closeBtns.forEach(btn => {
+        document.querySelectorAll('.modal .close').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                this.closeModal(e.target.closest('.modal').id);
+                const modal = e.target.closest('.modal');
+                if (modal && modal.id) this.closeModal(modal.id);
             });
         });
 
-        // Settings controls
-        document.getElementById('difficultySelect').addEventListener('change', (e) => {
-            this.difficulty = e.target.value;
-            this.saveSettings();
-            this.showMessage('Difficulty updated! Start a new game to apply.');
-        });
-
-        document.getElementById('showHintsToggle').addEventListener('change', (e) => {
-            this.showHints = e.target.checked;
-            this.saveSettings();
-            document.getElementById('hintBtn').style.display = this.showHints ? 'block' : 'none';
-        });
-
-        document.getElementById('darkThemeToggle').addEventListener('change', (e) => {
-            this.darkTheme = e.target.checked;
-            this.saveSettings();
-            document.body.classList.toggle('dark-theme', this.darkTheme);
-        });
-
-        document.getElementById('soundToggle').addEventListener('change', (e) => {
-            this.soundEffects = e.target.checked;
-            this.saveSettings();
-        });
-
-        // Game controls
-        document.getElementById('newGameBtn').addEventListener('click', () => this.startNewGame());
-        document.getElementById('hintBtn').addEventListener('click', () => this.openModal('hintModal'));
-        document.getElementById('giveUpBtn').addEventListener('click', () => this.giveUp());
-        document.getElementById('playAgainBtn').addEventListener('click', () => this.startNewGame());
-        document.getElementById('playAgainModalBtn').addEventListener('click', () => {
+        const on = (id, event, fn) => {
+            const el = document.getElementById(id);
+            if (el) el.addEventListener(event, fn);
+        };
+        on('newGameBtn', 'click', () => this.startNewGame());
+        on('hintBtn', 'click', () => this.openModal('hintModal'));
+        on('giveUpBtn', 'click', () => this.giveUp());
+        on('playAgainBtn', 'click', () => this.startNewGame());
+        on('playAgainModalBtn', 'click', () => {
             this.closeModal('gameOverModal');
             this.startNewGame();
         });
+        on('revealLetterBtn', 'click', () => this.revealRandomLetter());
+        on('shareResultBtn', 'click', () => this.shareResult());
 
-        // Hint modal
-        document.getElementById('revealLetterBtn').addEventListener('click', () => this.revealRandomLetter());
-        
-        // Share button
-        document.getElementById('shareResultBtn').addEventListener('click', () => this.shareResult());
-
-        // Keyboard input
         document.addEventListener('keydown', (e) => this.handleKeyPress(e));
-
-        // Click outside modal to close
         window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                this.closeModal(e.target.id);
-            }
+            if (e.target.classList.contains('modal')) this.closeModal(e.target.id);
         });
     }
 
     createAlphabetGrid() {
         const alphabetGrid = document.getElementById('alphabetGrid');
-        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        
+        if (!alphabetGrid) return;
         alphabetGrid.innerHTML = '';
-        
-        for (let letter of alphabet) {
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        for (let i = 0; i < alphabet.length; i++) {
+            const letter = alphabet[i];
             const button = document.createElement('button');
             button.className = 'letter-button';
+            button.type = 'button';
             button.textContent = letter;
             button.addEventListener('click', () => this.guessLetter(letter));
             alphabetGrid.appendChild(button);
@@ -249,52 +214,57 @@ class HangmanGame {
     }
 
     startNewGame() {
-        // Reset game state
         this.currentWord = this.selectRandomWord();
+        if (!this.currentWord || !this.currentWord.word) {
+            this.currentWord = { word: 'HANGMAN', category: 'Default', hint: 'The name of this game' };
+        }
         this.guessedLetters = [];
         this.wrongGuesses = 0;
         this.gameWon = false;
         this.gameOver = false;
         this.hintsUsed = 0;
 
-        // Update UI
         this.createWordDisplay();
         this.resetAlphabetGrid();
         this.resetHangman();
         this.updateLivesDisplay();
         this.updateGameInfo();
         this.closeModal('gameOverModal');
-        
-        // Hide play again button
-        document.getElementById('playAgainBtn').style.display = 'none';
-        
+
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        if (playAgainBtn) playAgainBtn.style.display = 'none';
+
         this.showMessage('New game started! Good luck!', 'success');
     }
 
     selectRandomWord() {
-        let filteredWords = this.words;
-        
-        // Filter by difficulty
+        let filteredWords = this.words && this.words.length ? this.words : [];
+        const defaultWord = { word: 'HANGMAN', category: 'Default', hint: 'The name of this game' };
+
         switch (this.difficulty) {
             case 'easy':
-                filteredWords = this.words.filter(wordObj => wordObj.word.length <= 5);
+                filteredWords = this.words.filter(w => w && w.word && w.word.length <= 5);
                 break;
             case 'medium':
-                filteredWords = this.words.filter(wordObj => wordObj.word.length >= 6 && wordObj.word.length <= 8);
+                filteredWords = this.words.filter(w => w && w.word && w.word.length >= 6 && w.word.length <= 8);
                 break;
             case 'hard':
-                filteredWords = this.words.filter(wordObj => wordObj.word.length >= 9);
+                filteredWords = this.words.filter(w => w && w.word && w.word.length >= 9);
                 break;
         }
-        
+        if (!filteredWords.length) filteredWords = this.words || [];
+        if (!filteredWords.length) return defaultWord;
+
         return filteredWords[Math.floor(Math.random() * filteredWords.length)];
     }
 
     createWordDisplay() {
         const wordDisplay = document.getElementById('wordDisplay');
+        if (!wordDisplay || !this.currentWord || !this.currentWord.word) return;
         wordDisplay.innerHTML = '';
-        
-        for (let letter of this.currentWord.word) {
+        const word = String(this.currentWord.word).toUpperCase();
+        for (let i = 0; i < word.length; i++) {
+            const letter = word[i];
             const letterBlank = document.createElement('div');
             letterBlank.className = 'letter-blank';
             letterBlank.dataset.letter = letter;
@@ -303,13 +273,17 @@ class HangmanGame {
     }
 
     updateGameInfo() {
-        document.getElementById('gameInfo').textContent = `Category: ${this.currentWord.category}`;
-        document.getElementById('categoryDisplay').textContent = this.currentWord.category;
-        
-        // Update hint modal content
-        document.getElementById('hintCategory').textContent = this.currentWord.category;
-        document.getElementById('hintLength').textContent = `${this.currentWord.word.length} letters`;
-        document.getElementById('hintDefinition').textContent = this.currentWord.hint;
+        if (!this.currentWord) return;
+        const gameInfo = document.getElementById('gameInfo');
+        const categoryDisplay = document.getElementById('categoryDisplay');
+        if (gameInfo) gameInfo.textContent = `Category: ${this.currentWord.category || 'General'}`;
+        if (categoryDisplay) categoryDisplay.textContent = this.currentWord.category || 'General';
+        const hintCategory = document.getElementById('hintCategory');
+        const hintLength = document.getElementById('hintLength');
+        const hintDefinition = document.getElementById('hintDefinition');
+        if (hintCategory) hintCategory.textContent = this.currentWord.category || 'General';
+        if (hintLength) hintLength.textContent = `${(this.currentWord.word || '').length} letters`;
+        if (hintDefinition) hintDefinition.textContent = this.currentWord.hint || '—';
     }
 
     resetAlphabetGrid() {
@@ -320,9 +294,9 @@ class HangmanGame {
     }
 
     resetHangman() {
-        this.hangmanParts.forEach(part => {
-            const element = document.getElementById(part);
-            element.style.display = 'none';
+        (this.hangmanParts || []).forEach(part => {
+            const el = document.getElementById(part);
+            if (el) el.style.display = 'none';
         });
     }
 
@@ -338,25 +312,25 @@ class HangmanGame {
     }
 
     guessLetter(letter) {
-        if (this.gameOver || this.guessedLetters.includes(letter)) {
-            return;
-        }
+        if (!this.currentWord || !this.currentWord.word) return;
+        if (this.gameOver || this.guessedLetters.includes(letter)) return;
 
         this.guessedLetters.push(letter);
-        const button = [...document.querySelectorAll('.letter-button')].find(btn => btn.textContent === letter);
-        
-        if (this.currentWord.word.includes(letter)) {
+        const buttons = document.querySelectorAll('.letter-button');
+        const button = [...buttons].find(btn => btn && btn.textContent === letter);
+        const word = String(this.currentWord.word).toUpperCase();
+
+        if (word.includes(letter)) {
             // Correct guess
-            button.classList.add('correct');
+            if (button) button.classList.add('correct');
             this.revealLetter(letter);
             this.playSound('correct');
-            
+
             if (this.checkWin()) {
                 this.winGame();
             }
         } else {
-            // Wrong guess
-            button.classList.add('incorrect');
+            if (button) button.classList.add('incorrect');
             this.wrongGuesses++;
             this.drawHangmanPart();
             this.updateLivesDisplay();
@@ -387,10 +361,12 @@ class HangmanGame {
     }
 
     checkWin() {
-        return this.currentWord.word.split('').every(letter => this.guessedLetters.includes(letter));
+        if (!this.currentWord || !this.currentWord.word) return false;
+        const word = String(this.currentWord.word).toUpperCase();
+        return word.split('').every(letter => this.guessedLetters.includes(letter));
     }
 
-    winGame() {
+    async winGame() {
         this.gameWon = true;
         this.gameOver = true;
         this.stats.gamesPlayed++;
@@ -398,35 +374,26 @@ class HangmanGame {
         this.stats.currentStreak++;
         await this.saveStats();
         this.updateStatsDisplay();
-        
         this.playSound('win');
         this.showMessage('Congratulations! You won!', 'success');
-        
-        setTimeout(() => {
-            this.showGameOverModal(true);
-        }, 1500);
+        setTimeout(() => this.showGameOverModal(true), 1500);
     }
 
-    loseGame() {
+    async loseGame() {
         this.gameOver = true;
         this.stats.gamesPlayed++;
         this.stats.currentStreak = 0;
         await this.saveStats();
         this.updateStatsDisplay();
-        
-        // Reveal the word
-        this.currentWord.word.split('').forEach(letter => {
-            if (!this.guessedLetters.includes(letter)) {
-                this.revealLetter(letter);
-            }
-        });
-        
+        if (this.currentWord && this.currentWord.word) {
+            const word = String(this.currentWord.word).toUpperCase();
+            word.split('').forEach(letter => {
+                if (!this.guessedLetters.includes(letter)) this.revealLetter(letter);
+            });
+        }
         this.playSound('lose');
         this.showMessage('Game over! Better luck next time!', 'error');
-        
-        setTimeout(() => {
-            this.showGameOverModal(false);
-        }, 1500);
+        setTimeout(() => this.showGameOverModal(false), 1500);
     }
 
     giveUp() {
@@ -437,18 +404,16 @@ class HangmanGame {
         }
     }
 
-    revealRandomLetter() {
-        if (this.gameOver) return;
-        
-        const unguessedLetters = this.currentWord.word.split('').filter(letter => !this.guessedLetters.includes(letter));
-        
+    async revealRandomLetter() {
+        if (this.gameOver || !this.currentWord || !this.currentWord.word) return;
+        const word = String(this.currentWord.word).toUpperCase();
+        const unguessedLetters = word.split('').filter(letter => !this.guessedLetters.includes(letter));
         if (unguessedLetters.length === 0) return;
-        
+
         const randomLetter = unguessedLetters[Math.floor(Math.random() * unguessedLetters.length)];
-        
         this.guessedLetters.push(randomLetter);
         this.hintsUsed++;
-        this.stats.hintsUsed++;
+        this.stats.hintsUsed = (this.stats.hintsUsed || 0) + 1;
         await this.saveStats();
         this.updateStatsDisplay();
         
@@ -477,7 +442,6 @@ class HangmanGame {
     }
 
     showGameOverModal(won) {
-        const modal = document.getElementById('gameOverModal');
         const title = document.getElementById('gameOverTitle');
         const result = document.getElementById('gameResult');
         const correctWord = document.getElementById('correctWord');
@@ -485,26 +449,29 @@ class HangmanGame {
         const finalGamesPlayed = document.getElementById('finalGamesPlayed');
         const finalWinRate = document.getElementById('finalWinRate');
         const finalStreak = document.getElementById('finalStreak');
-        
-        title.textContent = won ? 'Congratulations!' : 'Game Over';
-        result.textContent = won ? 'You guessed the word!' : 'Better luck next time!';
-        result.className = `game-result ${won ? 'win' : 'lose'}`;
-        
-        correctWord.textContent = this.currentWord.word;
-        wordDefinition.textContent = this.currentWord.hint;
-        
-        finalGamesPlayed.textContent = this.stats.gamesPlayed;
-        finalWinRate.textContent = `${Math.round((this.stats.gamesWon / this.stats.gamesPlayed) * 100)}%`;
-        finalStreak.textContent = this.stats.currentStreak;
-        
+        if (title) title.textContent = won ? 'Congratulations!' : 'Game Over';
+        if (result) {
+            result.textContent = won ? 'You guessed the word!' : 'Better luck next time!';
+            result.className = `game-result ${won ? 'win' : 'lose'}`;
+        }
+        if (correctWord) correctWord.textContent = (this.currentWord && this.currentWord.word) ? this.currentWord.word : '—';
+        if (wordDefinition) wordDefinition.textContent = (this.currentWord && this.currentWord.hint) ? this.currentWord.hint : '—';
+        if (finalGamesPlayed) finalGamesPlayed.textContent = this.stats.gamesPlayed;
+        if (finalWinRate) {
+            const rate = this.stats.gamesPlayed > 0 ? Math.round((this.stats.gamesWon / this.stats.gamesPlayed) * 100) : 0;
+            finalWinRate.textContent = `${rate}%`;
+        }
+        if (finalStreak) finalStreak.textContent = this.stats.currentStreak;
         this.openModal('gameOverModal');
-        document.getElementById('playAgainBtn').style.display = 'block';
+        const playAgainBtn = document.getElementById('playAgainBtn');
+        if (playAgainBtn) playAgainBtn.style.display = 'block';
     }
 
     shareResult() {
+        if (!this.currentWord) return;
         const won = this.gameWon;
-        const word = this.currentWord.word;
-        const category = this.currentWord.category;
+        const word = this.currentWord.word || '—';
+        const category = this.currentWord.category || '—';
         const wrongGuesses = this.wrongGuesses;
         const hintsUsed = this.hintsUsed;
         
@@ -534,10 +501,14 @@ class HangmanGame {
     }
 
     updateStatsDisplay() {
-        document.getElementById('gamesWon').textContent = this.stats.gamesWon;
-        document.getElementById('gamesPlayed').textContent = this.stats.gamesPlayed;
-        document.getElementById('currentStreak').textContent = this.stats.currentStreak;
-        document.getElementById('hintsUsed').textContent = this.stats.hintsUsed;
+        const set = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val != null ? val : 0;
+        };
+        set('gamesWon', this.stats.gamesWon);
+        set('gamesPlayed', this.stats.gamesPlayed);
+        set('currentStreak', this.stats.currentStreak);
+        set('hintsUsed', this.stats.hintsUsed != null ? this.stats.hintsUsed : this.hintsUsed);
     }
 
     handleKeyPress(event) {
@@ -593,7 +564,7 @@ class HangmanGame {
             oscillator.start();
             oscillator.stop(audioContext.currentTime + (type === 'lose' ? 2 : type === 'win' ? 1 : 0.5));
         } catch (error) {
-            console.log('Audio not supported');
+            // Audio not supported
         }
     }
 
@@ -609,22 +580,30 @@ class HangmanGame {
 
     openModal(modalId) {
         const modal = document.getElementById(modalId);
-        modal.style.display = 'block';
-        setTimeout(() => {
-            modal.classList.add('show');
-        }, 10);
+        if (modal) {
+            modal.style.display = 'block';
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
     }
 
     closeModal(modalId) {
         const modal = document.getElementById(modalId);
-        modal.classList.remove('show');
-        setTimeout(() => {
-            modal.style.display = 'none';
-        }, 300);
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
     }
 }
 
-// Initialize the game when the page loads
-document.addEventListener('DOMContentLoaded', () => {
-    new HangmanGame();
-});
+function initHangman() {
+    const grid = document.getElementById('alphabetGrid');
+    const wordDisplay = document.getElementById('wordDisplay');
+    if (!grid || !wordDisplay) return;
+    window.hangmanGame = new HangmanGame();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHangman);
+} else {
+    initHangman();
+}

@@ -37,7 +37,20 @@ body.high-contrast {
     --correct: #85c0f9;
 }
 
-/* Game-specific body styling */
+/* Local style wrapper: consistent font and color for Wordle only */
+.wordle-container {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+body.dark-theme .wordle-container {
+    color: var(--wordle-text);
+}
+
+/* Game-specific body styling (layout only; font/color scoped to .wordle-container) */
 body {
     background-color: var(--wordle-bg);
     color: var(--wordle-text);
@@ -46,7 +59,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
-    font-family: 'Clear Sans', 'Quicksand', Arial, sans-serif;
 }
 
 /* Header styling */
@@ -525,90 +537,6 @@ body {
 
 .share-button:hover, .play-again-button:hover {
     background: var(--accent-hover);
-}
-
-/* Settings modal */
-.setting {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--tile-border);
-}
-
-.setting:last-child {
-    border-bottom: none;
-}
-
-.setting-text {
-    flex: 1;
-}
-
-.setting-title {
-    font-weight: bold;
-    margin-bottom: 4px;
-}
-
-.setting-description {
-    font-size: 14px;
-    opacity: 0.7;
-}
-
-.setting-control {
-    width: 50px;
-}
-
-/* Toggle Switch */
-.switch {
-    position: relative;
-    display: inline-block;
-    width: 40px;
-    height: 24px;
-}
-
-.switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: 0.3s;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: 0.3s;
-}
-
-input:checked + .slider {
-    background-color: var(--correct);
-}
-
-input:checked + .slider:before {
-    transform: translateX(16px);
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
 }
 
 /* Word reveal */

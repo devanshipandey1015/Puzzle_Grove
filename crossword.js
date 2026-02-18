@@ -1143,7 +1143,6 @@ function setupEventListeners() {
     document.getElementById('hintBtn')?.addEventListener('click', showHint);
     document.getElementById('checkBtn')?.addEventListener('click', checkAllAnswers);
     document.getElementById('resetBtn')?.addEventListener('click', resetPuzzle);
-    document.getElementById('settingsBtn')?.addEventListener('click', () => showModal('settingsModal'));
     
     // Control buttons
     document.getElementById('clearWordBtn')?.addEventListener('click', clearCurrentWord);
@@ -1154,33 +1153,6 @@ function setupEventListeners() {
     document.getElementById('revealLetterBtn')?.addEventListener('click', revealLetter);
     document.getElementById('newPuzzleBtn')?.addEventListener('click', newPuzzle);
     document.getElementById('shareResultsBtn')?.addEventListener('click', shareResults);
-    
-    // Settings toggles
-    document.getElementById('darkThemeToggle')?.addEventListener('change', (e) => {
-        settings.darkTheme = e.target.checked;
-        saveSettings();
-        applySettings();
-    });
-    
-    document.getElementById('showTimerToggle')?.addEventListener('change', (e) => {
-        settings.showTimer = e.target.checked;
-        saveSettings();
-        if (settings.showTimer) {
-            startTimer();
-        } else {
-            stopTimer();
-        }
-    });
-    
-    document.getElementById('autoCheckToggle')?.addEventListener('change', (e) => {
-        settings.autoCheck = e.target.checked;
-        saveSettings();
-    });
-    
-    document.getElementById('soundToggle')?.addEventListener('change', (e) => {
-        settings.soundEffects = e.target.checked;
-        saveSettings();
-    });
     
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {

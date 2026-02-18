@@ -41,7 +41,21 @@ body.high-contrast {
     --hint-bg: #f5d84e;
 }
 
-/* Game-specific body styling */
+/* Local style wrapper: same font as Wordle, scoped to Word Strands only */
+.wordsearch-container {
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    color: #111827;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+body.dark-theme .wordsearch-container,
+[data-theme="dark"] .wordsearch-container {
+    color: var(--primary-text);
+}
+
+/* Game-specific body styling (layout only; font/color scoped to .wordsearch-container) */
 body {
     background-color: var(--wordsearch-bg);
     color: var(--wordsearch-text);
@@ -50,7 +64,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
     margin: 0;
-    font-family: 'Clear Sans', 'Quicksand', Arial, sans-serif;
 }
 
 /* Header styling */
