@@ -1,6 +1,9 @@
-# Puzzle Grove
+<img width="1844" height="892" alt="image" src="https://github.com/user-attachments/assets/8267d0d1-f5fc-4d7e-86dd-840e780e64e4" /><img width="1844" height="892" alt="image" src="https://github.com/user-attachments/assets/8267d0d1-f5fc-4d7e-86dd-840e780e64e4" /># Puzzle Grove
 
 **Puzzle Grove** is a comprehensive web-based word puzzle platform that brings together multiple popular word games inspired by The New York Times and other renowned puzzle sources. This interactive application provides users with a diverse collection of brain-teasing word games, complete with user authentication, progress tracking, and a modern, responsive interface.
+<img width="1844" height="892" alt="image" src="https://github.com/user-attachments/assets/17914d46-3381-4666-a38f-d9542aca6cbd" />
+<img width="1844" height="892" alt="image" src="https://github.com/user-attachments/assets/17914d46-3381-4666-a38f-d9542aca6cbd" />
+
 
 ## 🎮 Featured Games
 
